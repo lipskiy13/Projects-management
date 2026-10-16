@@ -41,12 +41,6 @@
   .flt { display:flex; gap:6px; align-items:center; color:var(--muted); font-size:13px; }
   .pill { font-size:11px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
   .s-done { color:var(--done); background:var(--done-bg); } .s-prog { color:var(--prog); background:var(--prog-bg); } .s-todo { color:var(--todo); background:var(--todo-bg); }
-  .stsel { appearance:none; -webkit-appearance:none; font:inherit; font-size:11px; font-weight:600; border:0; border-radius:999px;
-    padding:2px 20px 2px 9px; cursor:pointer; width:auto; justify-self:start;
-    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
-    background-position:calc(100% - 10px) 52%,calc(100% - 6px) 52%; background-size:4px 4px; background-repeat:no-repeat; }
-  .stsel.s-done { background-color:var(--done-bg); } .stsel.s-prog { background-color:var(--prog-bg); } .stsel.s-todo { background-color:var(--todo-bg); }
-  .stsel:disabled { opacity:.6; cursor:wait; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:16px; }
   a.k { color:var(--muted); text-decoration:none; font-variant-numeric:tabular-nums; font-size:12px; white-space:nowrap; }
   a.k:hover { color:var(--ink); text-decoration:underline; }
@@ -224,29 +218,6 @@ const overdue = x => x.st !== "done" && x.dd && x.dd < today;
 function peopleOf(list) { const m = new Map(); for (const x of list) if (x.a) m.set(x.a, (m.get(x.a) || 0) + 1); return [...m].sort((a, b) => b[1] - a[1]).map(([n]) => n); }
 const avs = (names, max = 3) => `<span class="avs">${names.slice(0, max).map(av).join("")}${names.length > max ? `<span class="av none" title="${esc(names.slice(max).join(", "))}">+${names.length - max}</span>` : ""}</span>`;
 
-const stSel = it => `<select class="stsel s-${it.st}" data-key="${it.k}" title="Change status in Jira">${Object.entries(ST).map(([v, l]) => `<option value="${v}" ${v === it.st ? "selected" : ""}>${l}</option>`).join("")}</select>`;
-function getEditKey() { try { return localStorage.getItem("editKey") || ""; } catch { return ""; } }
-function setEditKey(v) { try { localStorage.setItem("editKey", v); } catch {} }
-async function changeStatus(sel) {
-  const k = sel.dataset.key, to = sel.value, it = D.epicByKey[k] || D.issueByKey[k], prev = it.st;
-  if (!WORKER_URL) { sel.value = prev; return toast("Status changes need the Cloudflare Worker to be connected (see README)."); }
-  sel.disabled = true; sel.className = "stsel s-" + to;
-  try {
-    let r, j, tries = 0;
-    do {
-      r = await fetch(WORKER_URL.replace(/\/$/, "") + "/status", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: k, to, editKey: getEditKey() }) });
-      j = await r.json().catch(() => ({}));
-      if (r.status === 401 && tries++ < 1) { const v = prompt("Enter the edit key to change statuses:"); if (!v) break; setEditKey(v); continue; }
-      break;
-    } while (true);
-    if (!r.ok) throw new Error(j.error || "Error " + r.status);
-    it.st = to; if (to === "done") it.rd = today; else it.rd = null;
-    toast(`${k} → ${j.status || ST[to]}`); render();
-  } catch (err) { it.st = prev; sel.value = prev; sel.className = "stsel s-" + prev; toast("Could not change status: " + err.message, 5000); }
-  finally { sel.disabled = false; }
-}
-
 // ===== Router ==================================================================
 const PAGES = [["plan", "Plan"], ["backlog", "Backlog"], ...(SHOW_REPORT ? [["report", "Efficiency report"]] : [])];
 function render() {
@@ -303,7 +274,7 @@ function epicRow(e) {
     <div class="ep-h"><span class="car">▸</span>${key(e.k)}<span>${esc(e.s)}</span>
       <span class="hide-s">${avs(peopleOf([e, ...ts]))}</span>
       <span class="muted hide-s">${tc.done}/${ts.length} tasks${od ? ` · <span class="due-late">${od} late</span>` : ""}</span>
-      <span class="muted hide-s">${fmt(e.sd)} – ${fmt(e.dd)}</span>${stSel(e)}</div>
+      <span class="muted hide-s">${fmt(e.sd)} – ${fmt(e.dd)}</span><span class="pill s-${e.st}">${ST[e.st]}</span></div>
     <div class="ep-tasks">${ui.open.has(e.k) ? taskRows(e.k) : ""}</div></div>`;
 }
 function taskRows(k) {
@@ -312,7 +283,7 @@ function taskRows(k) {
   return ts.map(t => tRow(t) + tasksOf(t.k).map(s => tRow(s, true)).join("")).join("");
 }
 const tRow = (t, sub) => `<div class="tr ${sub ? "sub" : ""}">${key(t.k)}<span>${esc(t.s)}</span>${av(t.a)}
-  <span class="hide-s ${overdue(t) ? "due-late" : "muted"}">${fmt(t.dd)}</span>${stSel(t)}</div>`;
+  <span class="hide-s ${overdue(t) ? "due-late" : "muted"}">${fmt(t.dd)}</span><span class="pill s-${t.st}">${ST[t.st]}</span></div>`;
 function orphanCard() {
   const l = tasksOf("_none"); if (!l.length) return "";
   const open = ui.open.has("_none");
@@ -385,7 +356,7 @@ function backlogPage() {
       <button class="btn" style="margin-left:auto" data-act="idea">+ Add an idea</button>
     </div>
     <div class="card">${flt.length ? [...flt].sort((a, b) => num(b.k) - num(a.k)).map(i => `<div class="bl">${key(i.k)}<span>${esc(i.s)}</span>${av(i.a)}
-      <span class="muted hide-s">${fmt(i.dd)}</span>${stSel(i)}</div>`).join("") : `<p class="note">Nothing here.</p>`}</div>`;
+      <span class="muted hide-s">${fmt(i.dd)}</span><span class="pill s-${i.st}">${ST[i.st]}</span></div>`).join("") : `<p class="note">Nothing here.</p>`}</div>`;
 }
 
 // ===== Efficiency report (hidden: SHOW_REPORT = false) =========================
@@ -423,7 +394,7 @@ $("app").addEventListener("click", e => {
   if (act === "expandAll") { D.epics.forEach(x => ui.gOpen.add(x.k)); return render(); }
   if (act === "collapseAll") { ui.gOpen.clear(); return render(); }
   if (act === "idea") return openIdea();
-  if (e.target.closest("a, select")) return;
+  if (e.target.closest("a")) return;
   const g = e.target.closest("[data-gep]");
   if (g) { const k = g.dataset.gep; ui.gOpen.has(k) ? ui.gOpen.delete(k) : ui.gOpen.add(k); return render(); }
   const ep = e.target.closest(".ep-h")?.parentElement;
@@ -432,7 +403,6 @@ $("app").addEventListener("click", e => {
   const bh = e.target.closest(".blk-h"); if (bh) bh.parentElement.classList.toggle("collapsed");
 });
 $("app").addEventListener("change", e => {
-  if (e.target.classList.contains("stsel")) return changeStatus(e.target);
   if (e.target.id === "fBlock") { ui.block = e.target.value; ui.sub = "all"; render(); }
   if (e.target.id === "fSub") { ui.sub = e.target.value; render(); }
   if (e.target.id === "rBlock") { ui.rBlock = e.target.value; render(); }
