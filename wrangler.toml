@@ -1,0 +1,8 @@
+# Cloudflare Worker config (used by Cloudflare "Import a repository" / Workers Builds).
+# Secrets JIRA_EMAIL and JIRA_TOKEN are set in the Cloudflare dashboard, never here.
+name = "goldmans-portfolio"
+main = "worker/worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://lipskiy13.github.io"
