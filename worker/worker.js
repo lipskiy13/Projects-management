@@ -28,6 +28,7 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     try {
+      if (request.method === "GET" && path === "/health") return reply(200, await health(auth, env));
       if (request.method === "GET" && path === "/data") return reply(200, await loadData(auth, env));
       if (request.method === "POST" && (path === "/idea" || path === "")) return await createIdea(request, env, auth, reply);
       return reply(404, { error: "Not found" });
@@ -116,4 +117,16 @@ async function createIdea(request, env, auth, reply) {
   const j = await r.json().catch(() => ({}));
   if (!r.ok) return reply(502, { error: "Jira rejected the request", details: j.errors || j.errorMessages });
   return reply(200, { key: j.key });
+}
+
+// ---------- GET /health (diagnostics, no secrets in the output) -----------------
+async function health(auth, env) {
+  const out = { emailSet: !!env.JIRA_EMAIL, tokenSet: !!env.JIRA_TOKEN, tokenLength: (env.JIRA_TOKEN || "").length,
+                emailLooksLike: env.JIRA_EMAIL ? env.JIRA_EMAIL.replace(/^(.).*(@.*)$/, "$1…$2") : null };
+  try {
+    const me = await fetch(`${JIRA_SITE}/rest/api/3/myself`, { headers: { Authorization: auth, Accept: "application/json" } });
+    out.myselfStatus = me.status;
+    if (me.ok) out.jiraUser = (await me.json()).displayName; else out.myselfError = (await me.text()).slice(0, 200);
+  } catch (e) { out.myselfError = String(e); }
+  return out;
 }
