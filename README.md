@@ -9,12 +9,13 @@ Pages:
 
 Other features:
 - The **↻ Refresh** button loads live data from Jira through the Worker. Without the Worker it reloads the `data.json` snapshot.
+- **Status dropdowns** on epics and tasks (Plan and Backlog) move the issue in Jira through a transition.
 - The **+ Idea** button creates a task in the epic GOLDMANS-1075 Backlog / Ideas / Problems.
 
 ## Files
 - `index.html` is the site.
 - `data.json` is a snapshot of Jira data (epics, tasks, subtasks). The site shows it when the Worker is not connected.
-- `worker/worker.js` is the Cloudflare Worker. It holds the Jira token, which can't be kept in a public site. It serves `GET /data` for live data and `POST /idea` to create an idea.
+- `worker/worker.js` is the Cloudflare Worker. It holds the Jira token, which can't be kept in a public site. It serves `GET /data` (live data), `POST /idea` (create an idea) and `POST /status` (change status).
 
 ## Connecting the Worker (free, about 10 minutes)
 1. Go to dash.cloudflare.com → Workers & Pages → Create → Worker. Name it `goldmans-portfolio`, paste in the contents of `worker/worker.js`, and click Deploy.
@@ -22,6 +23,7 @@ Other features:
    - `JIRA_EMAIL` (secret): the email of the Atlassian account.
    - `JIRA_TOKEN` (secret): an API token from https://id.atlassian.com/manage-profile/security/api-tokens
    - `ALLOWED_ORIGIN` (text): `https://lipskiy13.github.io`
+   - `EDIT_KEY` (secret, recommended): a password for changing statuses. The site is public, and without the key anyone with the link could change statuses in Jira. Each person enters it once per browser.
 3. Put the Worker URL (`https://goldmans-portfolio.<subdomain>.workers.dev`) into `WORKER_URL` in `index.html`.
 
 ## Efficiency metric
