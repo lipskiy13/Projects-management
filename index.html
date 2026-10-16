@@ -1,274 +1,410 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Goldmans Project Portfolio</title>
+<title>Goldmans — проекты</title>
 <style>
   :root {
-    --bg: #f6f5f1; --card: #ffffff; --ink: #1d1f24; --muted: #6b6f78; --line: #e4e2dc;
-    --done: #3f8f5a; --done-bg: #e3f1e7;
-    --prog: #2f6fd6; --prog-bg: #e2ecfb;
-    --todo: #8a8f99; --todo-bg: #eeeff1;
-    --accent: #1d1f24;
-    --b1: #2f5aa8; --b2: #2f8a64; --b3: #c47a1c; --b4: #7a4fb0;
+    --bg:#f6f5f1; --card:#fff; --ink:#1d1f24; --muted:#6b6f78; --line:#e4e2dc; --soft:#f0eee9;
+    --done:#3f8f5a; --done-bg:#e3f1e7; --prog:#2f6fd6; --prog-bg:#e2ecfb; --todo:#8a8f99; --todo-bg:#eeeff1;
+    --late:#c2410c; --late-bg:#fdebdf; --bad:#b42318; --bad-bg:#fde7e5;
+    --accent:#1d1f24; --b1:#2f5aa8; --b2:#2f8a64; --b3:#c47a1c; --b4:#7a4fb0; --b0:#8a8f99;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #15171b; --card: #1e2126; --ink: #ecedef; --muted: #9aa0aa; --line: #2c3037;
-      --done: #6cc28a; --done-bg: #1f3428; --prog: #7aa7f0; --prog-bg: #1d2a42;
-      --todo: #a3a8b1; --todo-bg: #2a2d33; --accent: #ecedef;
-      --b1: #7aa0e8; --b2: #6cc29a; --b3: #e3a75a; --b4: #b294e0;
-    }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
-  header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
-  h1 { font-size: 28px; margin: 0; letter-spacing: -0.02em; }
-  .sub { color: var(--muted); margin: 4px 0 0; }
-  .btn { background: var(--accent); color: var(--bg); border: 0; border-radius: 8px; padding: 10px 16px;
-    font-weight: 600; font-size: 14px; cursor: pointer; }
-  .btn:disabled { opacity: .5; cursor: default; }
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
-  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-  .kpi .n { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
-  .kpi .l { color: var(--muted); font-size: 13px; }
-  .bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--todo-bg); }
-  .bar span { display: block; }
-  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin: 6px 0 0; }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
-    padding: 6px 12px; font-size: 13px; cursor: pointer; }
-  .chip[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-  .block { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
-  .block-h { display: grid; grid-template-columns: 1fr 260px; gap: 16px; align-items: center; padding: 16px 18px;
-    border-left: 5px solid var(--bc); cursor: pointer; }
-  .block-h h2 { font-size: 18px; margin: 0; }
-  .block-h .meta { color: var(--muted); font-size: 13px; }
-  .subg { padding: 4px 18px 14px 23px; }
-  .subg h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 8px;
-    display: flex; justify-content: space-between; gap: 12px; }
-  .row { display: grid; grid-template-columns: 120px 1fr auto; gap: 12px; align-items: center; padding: 8px 0;
-    border-top: 1px solid var(--line); font-size: 14px; }
-  .row a { color: var(--muted); text-decoration: none; font-variant-numeric: tabular-nums; font-size: 13px; }
-  .row a:hover { color: var(--ink); text-decoration: underline; }
-  .pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
-  .s-done { color: var(--done); background: var(--done-bg); }
-  .s-prog { color: var(--prog); background: var(--prog-bg); }
-  .s-todo { color: var(--todo); background: var(--todo-bg); }
-  .collapsed .subg { display: none; }
-  .caret { transition: transform .15s; display: inline-block; margin-right: 6px; color: var(--muted); }
-  .collapsed .caret { transform: rotate(-90deg); }
-  footer { color: var(--muted); font-size: 12px; margin-top: 24px; }
-  dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(520px, calc(100% - 32px));
-    background: var(--card); color: var(--ink); }
-  dialog::backdrop { background: rgba(0,0,0,.4); }
-  form { padding: 20px; display: grid; gap: 12px; }
-  form h2 { margin: 0; font-size: 18px; }
-  label { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
-  input, textarea, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
-    border-radius: 8px; padding: 9px 10px; width: 100%; }
-  textarea { min-height: 110px; resize: vertical; }
-  .actions { display: flex; justify-content: flex-end; gap: 8px; }
-  .ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
-  .msg { font-size: 13px; padding: 8px 10px; border-radius: 8px; display: none; }
-  .msg.ok { display: block; color: var(--done); background: var(--done-bg); }
-  .msg.err { display: block; color: #c0392b; background: #fbe9e7; }
-  .hp { position: absolute; left: -9999px; }
-  @media (max-width: 720px) {
-    .kpis { grid-template-columns: repeat(2, 1fr); }
-    .block-h { grid-template-columns: 1fr; }
-    .row { grid-template-columns: 1fr auto; }
-    .row a { grid-column: 1 / -1; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg:#15171b; --card:#1e2126; --ink:#ecedef; --muted:#9aa0aa; --line:#2c3037; --soft:#24272d;
+    --done:#6cc28a; --done-bg:#1f3428; --prog:#7aa7f0; --prog-bg:#1d2a42; --todo:#a3a8b1; --todo-bg:#2a2d33;
+    --late:#f0a06a; --late-bg:#3a2619; --bad:#f2837a; --bad-bg:#3b1f1d;
+    --accent:#ecedef; --b1:#7aa0e8; --b2:#6cc29a; --b3:#e3a75a; --b4:#b294e0; --b0:#a3a8b1; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
+  .wrap { max-width:1280px; margin:0 auto; padding:24px 16px 64px; }
+  header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+  h1 { font-size:24px; margin:0; letter-spacing:-.02em; }
+  nav.tabs { display:flex; gap:4px; background:var(--soft); padding:4px; border-radius:10px; }
+  nav.tabs a { padding:7px 14px; border-radius:7px; color:var(--muted); text-decoration:none; font-weight:600; }
+  nav.tabs a.on { background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .hbtns { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .stamp { color:var(--muted); font-size:12px; }
+  .btn { background:var(--accent); color:var(--bg); border:0; border-radius:8px; padding:8px 14px; font-weight:600; font-size:13px; cursor:pointer; }
+  .btn.ghost { background:var(--card); color:var(--ink); border:1px solid var(--line); }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .kpi .n { font-size:26px; font-weight:700; letter-spacing:-.02em; }
+  .kpi .l { color:var(--muted); font-size:12px; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
+  .seg { display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--card); }
+  .seg button { border:0; background:none; color:var(--muted); padding:6px 12px; font-size:13px; cursor:pointer; }
+  .seg button.on { background:var(--accent); color:var(--bg); }
+  select { font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; }
+  .pill { font-size:11px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
+  .s-done { color:var(--done); background:var(--done-bg); } .s-prog { color:var(--prog); background:var(--prog-bg); } .s-todo { color:var(--todo); background:var(--todo-bg); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:16px; }
+  a.k { color:var(--muted); text-decoration:none; font-variant-numeric:tabular-nums; font-size:12px; white-space:nowrap; }
+  a.k:hover { color:var(--ink); text-decoration:underline; }
+  .muted { color:var(--muted); }
+  .bar { display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--todo-bg); }
+  /* list view */
+  .blk-h { padding:14px 16px; border-left:5px solid var(--bc); display:flex; justify-content:space-between; gap:16px; align-items:center; cursor:pointer; }
+  .blk-h h2 { margin:0; font-size:17px; } .blk-h .meta { color:var(--muted); font-size:12px; }
+  .sg { padding:2px 16px 10px 21px; }
+  .sg h3 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:12px 0 4px; }
+  .ep { border-top:1px solid var(--line); }
+  .ep-h { display:grid; grid-template-columns:18px 112px 1fr 120px 150px 90px; gap:10px; align-items:center; padding:8px 0; cursor:pointer; }
+  .ep-tasks { display:none; padding:0 0 8px 28px; } .ep.open .ep-tasks { display:block; }
+  .ep.open .car { transform:rotate(90deg); }
+  .car { display:inline-block; color:var(--muted); transition:transform .15s; }
+  .tr { display:grid; grid-template-columns:112px 1fr 130px 90px 90px; gap:10px; align-items:center; padding:4px 0; font-size:13px; border-top:1px dashed var(--line); }
+  .tr.sub { padding-left:18px; grid-template-columns:94px 1fr 130px 90px 90px; }
+  .due-late { color:var(--bad); font-weight:600; }
+  .collapsed .sg { display:none; }
+  /* gantt */
+  .gantt { position:relative; overflow:auto; max-height:75vh; }
+  .g-grid { display:grid; grid-template-columns:340px auto; min-width:max-content; }
+  .g-left, .g-head-l { position:sticky; left:0; background:var(--card); z-index:2; border-right:1px solid var(--line); }
+  .g-head-l, .g-head-r { position:sticky; top:0; z-index:3; background:var(--card); border-bottom:1px solid var(--line); height:44px; }
+  .g-head-l { z-index:4; padding:12px; font-weight:600; }
+  .g-head-r { position:sticky; top:0; }
+  .g-month { position:absolute; top:0; height:44px; border-left:1px solid var(--line); padding:4px 6px; font-size:12px; color:var(--muted); white-space:nowrap; }
+  .g-row { height:32px; display:flex; align-items:center; gap:8px; padding:0 10px; border-bottom:1px solid var(--soft); white-space:nowrap; overflow:hidden; font-size:13px; }
+  .g-row.blk { background:var(--soft); font-weight:700; } .g-row.ep { cursor:pointer; font-weight:600; }
+  .g-row.task { padding-left:34px; color:var(--ink); } .g-row.task.sub { padding-left:52px; color:var(--muted); }
+  .g-row .ttl { overflow:hidden; text-overflow:ellipsis; }
+  .g-lane { position:relative; height:32px; border-bottom:1px solid var(--soft); }
+  .g-lane.blk { background:var(--soft); }
+  .g-bar { position:absolute; top:8px; height:16px; border-radius:4px; min-width:4px; }
+  .g-bar.ep { top:7px; height:18px; }
+  .g-bar.done { background:var(--done); } .g-bar.prog { background:var(--prog); } .g-bar.todo { background:var(--todo); opacity:.75; }
+  .g-bar.overdue { box-shadow:0 0 0 2px var(--bad) inset; }
+  .g-dia { position:absolute; top:10px; width:12px; height:12px; transform:rotate(45deg); margin-left:-6px; }
+  .g-dia.done { background:var(--done); } .g-dia.prog { background:var(--prog); } .g-dia.todo { background:var(--todo); }
+  .g-today { position:absolute; top:0; bottom:0; width:2px; background:var(--bad); z-index:1; pointer-events:none; }
+  .g-mline { position:absolute; top:0; bottom:0; width:1px; background:var(--soft); pointer-events:none; }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin:8px 0 0; }
+  .sw { display:inline-block; width:12px; height:8px; border-radius:2px; margin-right:5px; vertical-align:0; }
+  /* report */
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+  th { font-size:12px; color:var(--muted); font-weight:600; background:var(--soft); }
+  td.r, th.r { text-align:right; }
+  .rate { font-weight:700; } .rate.g { color:var(--done); } .rate.y { color:var(--late); } .rate.b { color:var(--bad); }
+  .note { color:var(--muted); font-size:12px; padding:10px 14px; }
+  .h2 { font-size:16px; margin:22px 0 10px; }
+  /* dialog */
+  dialog { border:1px solid var(--line); border-radius:14px; padding:0; width:min(520px,calc(100% - 32px)); background:var(--card); color:var(--ink); }
+  dialog::backdrop { background:rgba(0,0,0,.4); }
+  form { padding:20px; display:grid; gap:12px; } form h2 { margin:0; font-size:18px; }
+  label { font-size:13px; color:var(--muted); display:grid; gap:4px; }
+  input, textarea, form select { font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 10px; width:100%; }
+  textarea { min-height:100px; resize:vertical; }
+  .actions { display:flex; justify-content:flex-end; gap:8px; }
+  .msg { font-size:13px; padding:8px 10px; border-radius:8px; display:none; }
+  .msg.ok { display:block; color:var(--done); background:var(--done-bg); } .msg.err { display:block; color:var(--bad); background:var(--bad-bg); }
+  .hp { position:absolute; left:-9999px; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:13px; display:none; z-index:50; max-width:90vw; }
+  @media (max-width:820px) {
+    .kpis { grid-template-columns:repeat(2,1fr); }
+    .ep-h { grid-template-columns:18px 1fr 90px; } .ep-h .hide-s { display:none; }
+    .tr, .tr.sub { grid-template-columns:1fr 90px; } .tr .hide-s { display:none; }
+    .g-grid { grid-template-columns:200px auto; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <h1>Project Portfolio</h1>
-      <p class="sub">Goldmans epics in Jira, grouped by block and subgroup</p>
+    <h1>Goldmans · проекты</h1>
+    <nav class="tabs"><a href="#plan" id="tPlan">План</a><a href="#report" id="tReport">Отчёт по эффективности</a></nav>
+    <div class="hbtns">
+      <span class="stamp" id="stamp"></span>
+      <button class="btn ghost" id="refresh">↻ Обновить</button>
+      <button class="btn" id="openIdea">+ Идея</button>
     </div>
-    <button class="btn" id="openIdea">+ Add an idea</button>
   </header>
-
-  <section class="kpis" id="kpis"></section>
-  <div class="filters" id="filters"></div>
-  <main id="blocks"></main>
-  <footer id="foot"></footer>
+  <main id="app"><p class="muted">Загрузка…</p></main>
 </div>
 
 <dialog id="ideaDlg">
   <form id="ideaForm" novalidate>
-    <h2>New idea for the backlog</h2>
-    <p class="sub" style="margin:0">Creates a task in Jira under <b>GOLDMANS-1075 Backlog / Ideas / Problems</b>.</p>
-    <label>Type
-      <select name="kind">
-        <option>Idea</option><option>Problem</option>
-      </select>
-    </label>
-    <label>Title *<input name="summary" maxlength="200" required placeholder="Short name of the idea"></label>
-    <label>Description<textarea name="description" maxlength="5000" placeholder="What, why, expected effect"></textarea></label>
-    <label>Your name *<input name="author" maxlength="80" required></label>
-    <label>Team code *<input name="code" maxlength="80" required autocomplete="off"></label>
+    <h2>Новая идея в бэклог</h2>
+    <p class="muted" style="margin:0">Создаёт задачу в Jira в эпике <b>GOLDMANS-1075 Backlog / Ideas / Problems</b>.</p>
+    <label>Тип<select name="kind"><option value="Idea">Идея</option><option value="Problem">Проблема</option></select></label>
+    <label>Название *<input name="summary" maxlength="200" required></label>
+    <label>Описание<textarea name="description" maxlength="5000" placeholder="Что, зачем, ожидаемый эффект"></textarea></label>
+    <label>Ваше имя *<input name="author" maxlength="80" required></label>
+    <label>Код команды *<input name="code" maxlength="80" required autocomplete="off"></label>
     <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="msg" id="msg"></div>
-    <div class="actions">
-      <button type="button" class="btn ghost" id="closeIdea">Cancel</button>
-      <button type="submit" class="btn" id="sendIdea">Send to Jira</button>
-    </div>
+    <div class="actions"><button type="button" class="btn ghost" id="closeIdea">Отмена</button><button type="submit" class="btn" id="sendIdea">Отправить в Jira</button></div>
   </form>
 </dialog>
+<div class="toast" id="toast"></div>
 
 <script>
-// ---- Config ----------------------------------------------------------------
-// URL of the Cloudflare Worker that creates the Jira task (see worker/README).
-const IDEA_ENDPOINT = "";
+// ===== Config ==================================================================
+// URL of the Cloudflare Worker (see worker/README). Empty = only the data.json snapshot.
+const WORKER_URL = "";
 const JIRA = "https://goldmans.atlassian.net/browse/";
-const SNAPSHOT_DATE = "16 Oct 2026";
+const BLOCK_ORDER = ["Digital transformation", "Developing sales effectiveness", "Development of hiring", "Development of onboarding and training"];
+const BLOCK_COLOR = { "Digital transformation": "var(--b1)", "Developing sales effectiveness": "var(--b2)", "Development of hiring": "var(--b3)", "Development of onboarding and training": "var(--b4)" };
+const NO_BLOCK = "Без блока";
+const ST = { done: "Готово", prog: "В работе", todo: "К выполнению" };
 
-// ---- Data snapshot (Jira, field "Блок") -------------------------------------
-const BLOCKS = [
-  { name: "Digital transformation", color: "var(--b1)", subs: [
-    { name: "Data model development", items: [
-      [1120,"AI-powered tool for finding newly opened businesses","todo"],
-      [1121,"AI Event Search Tool","todo"],
-      [1123,"Scraping competitors' customers","todo"],
-      [756,"WhatsApp integration","prog"],
-      [757,"Telephony integration","todo"],
-      [1124,"Email integration","todo"],
-      [805,"Installation of conversation recording devices","todo"],
-      [980,"Switching to corporate phones","prog"],
-      [1161,"Broker feedback form","prog"]]},
-    { name: "IT systems and metrics", items: [
-      [1,"IT system development","done"],[3,"Confluence Implementation","done"],
-      [4,"JIRA Implementation","done"],[5,"Slack Implementation","done"],
-      [12,"CRM implementation","done"],[18,"Website Development","done"],
-      [19,"Revolut People Implementation","done"],
-      [753,"Integration with SalesForce","prog"],
-      [826,"Establishing a reporting system and NIPs","prog"],
-      [806,"Developing planned vs. actual results on the web service","prog"],
-      [1122,"Developing the technical specifications for a decision-making system","prog"],
-      [754,"Development of a process model","prog"],
-      [1108,"Slack Bot Development","prog"],
-      [1151,"Tool for automated reminders","prog"],
-      [1126,"Integration of all processes into the personal account","todo"]]}]},
-  { name: "Developing sales effectiveness", color: "var(--b2)", subs: [
-    { name: "PDQ", items: [
-      [1106,"Formulation and integration of the production plan","prog"],
-      [1105,"Integration of the lead disqualification process","prog"],
-      [1115,"Launching Email Campaigns (PDQ)","prog"],
-      [1107,"Integrating the lead follow-up process in established areas","todo"],
-      [824,"Online broker dispatching","todo"],
-      [751,"Development of a negotiation analysis agent","todo"],
-      [825,"Launching a partner channel","todo"],
-      [1166,"Partner bot","todo"],
-      [827,"Developing the LinkedIn channel","todo"],
-      [831,"Brand development","todo"],
-      [829,"Launching the franchise in Manchester and Birmingham","todo"]]},
-    { name: "Funding", items: [
-      [752,"Launching Email Campaigns (Funding)","prog"],
-      [755,"Developing the funding process","todo"]]},
-    { name: "Additional sales", items: [
-      [828,"Implementation of an upsell process for existing clients","todo"]]}]},
-  { name: "Development of hiring", color: "var(--b3)", subs: [
-    { name: null, items: [
-      [1127,"Calculation of broker's hiring and onboarding costs","todo"]]}]},
-  { name: "Development of onboarding and training", color: "var(--b4)", subs: [
-    { name: null, items: [
-      [20,"Onboarding process","done"],[21,"Q&A","done"],[16,"iSpring implementation","done"],
-      [1125,"Digitization of the learning process","todo"]]}]},
-];
+// ===== State ===================================================================
+let D = null;                        // {generated, epics, issues}
+const ui = { view: "list", status: "all", zoom: "month", open: new Set(), gOpen: new Set(), rBlock: "all" };
+const today = new Date().toISOString().slice(0, 10);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = d => d ? new Date(d + "T00:00:00").toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "—";
+const key = k => `<a class="k" href="${JIRA}${k}" target="_blank" rel="noopener">${k}</a>`;
+const num = k => +k.split("-")[1];
+function toast(t, ms = 3500) { const el = $("toast"); el.textContent = t; el.style.display = "block"; clearTimeout(el._t); el._t = setTimeout(() => el.style.display = "none", ms); }
 
-// ---- Rendering ---------------------------------------------------------------
-const LABEL = { done: "Done", prog: "In progress", todo: "To do" };
-const ORDER = { done: 0, prog: 1, todo: 2 };
-const count = items => items.reduce((a, [, , s]) => (a[s]++, a), { done: 0, prog: 0, todo: 0 });
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-function bar(c) {
-  const t = c.done + c.prog + c.todo || 1;
-  return `<div class="bar" role="img" aria-label="${c.done} done, ${c.prog} in progress, ${c.todo} to do">
-    <span style="width:${c.done / t * 100}%;background:var(--done)"></span>
-    <span style="width:${c.prog / t * 100}%;background:var(--prog)"></span></div>`;
+// ===== Data ====================================================================
+async function load(fromWorker) {
+  const url = fromWorker ? WORKER_URL.replace(/\/$/, "") + "/data" : "data.json?t=" + Date.now();
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  D = await r.json(); index(); render();
 }
-
-const all = BLOCKS.flatMap(b => b.subs.flatMap(s => s.items));
-const tot = count(all);
-document.getElementById("kpis").innerHTML = [
-  [all.length, "Projects"], [tot.done, "Done"], [tot.prog, "In progress"], [tot.todo, "To do"]
-].map(([n, l]) => `<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
-
-let filter = "all";
-function renderFilters() {
-  const opts = [["all", "All"], ["prog", "In progress"], ["todo", "To do"], ["done", "Done"]];
-  document.getElementById("filters").innerHTML = opts.map(([k, l]) =>
-    `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join("");
+function index() {
+  D.byParent = {};
+  for (const i of D.issues) (D.byParent[i.p || "_none"] ||= []).push(i);
+  for (const l of Object.values(D.byParent)) l.sort((a, b) => num(a.k) - num(b.k));
+  D.blocks = [...BLOCK_ORDER, NO_BLOCK].map(b => ({
+    name: b, color: BLOCK_COLOR[b] || "var(--b0)",
+    subs: groupSubs(D.epics.filter(e => (e.b || NO_BLOCK) === b)) })).filter(b => b.subs.length);
+  $("stamp").textContent = "Данные на " + new Date(D.generated).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-document.getElementById("filters").addEventListener("click", e => {
-  const f = e.target.dataset.f; if (!f) return;
-  filter = f; renderFilters(); renderBlocks();
-});
+function groupSubs(eps) {
+  const m = new Map();
+  for (const e of eps.sort((a, b) => ({ done: 0, prog: 1, todo: 2 }[a.st] - { done: 0, prog: 1, todo: 2 }[b.st]) || num(a.k) - num(b.k)))
+    (m.get(e.g || "") || m.set(e.g || "", []).get(e.g || "")).push(e);
+  return [...m].map(([name, epics]) => ({ name, epics }));
+}
+const tasksOf = k => D.byParent[k] || [];
+const allUnder = k => tasksOf(k).flatMap(t => [t, ...tasksOf(t.k)]);
+const count = l => l.reduce((a, x) => (a[x.st]++, a), { done: 0, prog: 0, todo: 0 });
+function bar(c) { const t = c.done + c.prog + c.todo || 1;
+  return `<div class="bar"><span style="width:${c.done / t * 100}%;background:var(--done)"></span><span style="width:${c.prog / t * 100}%;background:var(--prog)"></span></div>`; }
+const overdue = x => x.st !== "done" && x.dd && x.dd < today;
 
-function renderBlocks() {
-  document.getElementById("blocks").innerHTML = BLOCKS.map((b, i) => {
-    const items = b.subs.flatMap(s => s.items), c = count(items);
+// ===== Router ==================================================================
+function render() {
+  if (!D) return;
+  const page = location.hash === "#report" ? "report" : "plan";
+  $("tPlan").classList.toggle("on", page === "plan"); $("tReport").classList.toggle("on", page === "report");
+  const g = document.querySelector(".gantt"), keep = g ? [g.scrollLeft, g.scrollTop] : null;
+  $("app").innerHTML = page === "plan" ? planPage() : reportPage();
+  const ng = document.querySelector(".gantt");
+  if (ng) { if (keep && ui.zoom === ui._lastZoom) [ng.scrollLeft, ng.scrollTop] = keep;
+    else { const t = ng.querySelector(".g-today"); ng.scrollLeft = Math.max(0, t.offsetLeft - 300); } ui._lastZoom = ui.zoom; }
+}
+addEventListener("hashchange", render);
+
+// ===== Plan page ===============================================================
+function planPage() {
+  const eps = D.epics.filter(e => e.b), c = count(eps), tc = count(D.issues);
+  return `<section class="kpis">
+      ${[[eps.length, "Проектов (эпиков в блоках)"], [c.done, "Готово"], [c.prog, "В работе"], [c.todo, "К выполнению"], [D.issues.length, `Задач · ${tc.done} готово`]]
+        .map(([n, l]) => `<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("")}</section>
+    <div class="toolbar">
+      <div class="seg" data-k="view">${[["list", "Список"], ["gantt", "Гант"]].map(([v, l]) => `<button data-v="${v}" class="${ui.view === v ? "on" : ""}">${l}</button>`).join("")}</div>
+      <div class="seg" data-k="status">${[["all", "Все"], ["prog", "В работе"], ["todo", "К выполнению"], ["done", "Готово"]].map(([v, l]) => `<button data-v="${v}" class="${ui.status === v ? "on" : ""}">${l}</button>`).join("")}</div>
+      ${ui.view === "gantt" ? `<div class="seg" data-k="zoom">${[["week", "Недели"], ["month", "Месяцы"], ["quarter", "Кварталы"]].map(([v, l]) => `<button data-v="${v}" class="${ui.zoom === v ? "on" : ""}">${l}</button>`).join("")}</div>
+        <button class="btn ghost" data-act="expandAll">Развернуть все</button><button class="btn ghost" data-act="collapseAll">Свернуть</button>` : ""}
+    </div>
+    ${ui.view === "list" ? listView() : ganttView()}`;
+}
+const passes = e => ui.status === "all" || e.st === ui.status;
+
+function listView() {
+  return D.blocks.map(b => {
+    const eps = b.subs.flatMap(s => s.epics), c = count(eps);
     const subs = b.subs.map(s => {
-      const rows = [...s.items].filter(([, , st]) => filter === "all" || st === filter)
-        .sort((x, y) => ORDER[x[2]] - ORDER[y[2]] || x[0] - y[0])
-        .map(([k, t, st]) => `<div class="row"><a href="${JIRA}GOLDMANS-${k}" target="_blank" rel="noopener">GOLDMANS-${k}</a>
-          <span>${esc(t)}</span><span class="pill s-${st}">${LABEL[st]}</span></div>`).join("");
-      if (!rows) return "";
-      const sc = count(s.items);
-      return `<div class="subg">${s.name ? `<h3><span>${esc(s.name)}</span><span>${sc.done}/${s.items.length} done</span></h3>` : ""}${rows}</div>`;
+      const rows = s.epics.filter(passes).map(epicRow).join("");
+      return rows ? `<div class="sg">${s.name ? `<h3>${esc(s.name)}</h3>` : ""}${rows}</div>` : "";
     }).join("");
-    return `<section class="block" style="--bc:${b.color}">
-      <div class="block-h" data-i="${i}">
-        <div><h2><span class="caret">▾</span>${esc(b.name)}</h2>
-        <div class="meta">${items.length} projects · ${c.done} done · ${c.prog} in progress · ${c.todo} to do</div></div>
-        <div>${bar(c)}</div>
-      </div>${subs || `<div class="subg"><p class="sub">No projects with this status.</p></div>`}</section>`;
-  }).join("");
+    if (!subs) return "";
+    return `<section class="card"><div class="blk-h" style="--bc:${b.color}" data-act="none">
+      <div><h2>${esc(b.name)}</h2><div class="meta">${eps.length} проектов · ${c.done} готово · ${c.prog} в работе · ${c.todo} к выполнению</div></div>
+      <div style="width:220px">${bar(c)}</div></div>${subs}</section>`;
+  }).join("") + orphanCard();
 }
-document.getElementById("blocks").addEventListener("click", e => {
-  const h = e.target.closest(".block-h"); if (h) h.parentElement.classList.toggle("collapsed");
-});
-renderFilters(); renderBlocks();
-document.getElementById("foot").innerHTML =
-  `Snapshot from Jira on ${SNAPSHOT_DATE}. <span class="dot" style="background:var(--done)"></span>Done
-   <span class="dot" style="background:var(--prog);margin-left:10px"></span>In progress
-   <span class="dot" style="background:var(--todo-bg);margin-left:10px"></span>To do`;
+function epicRow(e) {
+  const ts = allUnder(e.k), tc = count(ts), od = ts.filter(overdue).length;
+  return `<div class="ep ${ui.open.has(e.k) ? "open" : ""}" data-ep="${e.k}">
+    <div class="ep-h"><span class="car">▸</span>${key(e.k)}<span>${esc(e.s)}</span>
+      <span class="muted hide-s">${tc.done}/${ts.length} задач${od ? ` · <span class="due-late">${od} просроч.</span>` : ""}</span>
+      <span class="muted hide-s">${fmt(e.sd)} – ${fmt(e.dd)}</span><span class="pill s-${e.st}">${ST[e.st]}</span></div>
+    <div class="ep-tasks">${ui.open.has(e.k) ? taskRows(e.k) : ""}</div></div>`;
+}
+function taskRows(k) {
+  const ts = tasksOf(k);
+  if (!ts.length) return `<div class="tr muted"><span></span><span>Задач нет</span></div>`;
+  return ts.map(t => tRow(t) + tasksOf(t.k).map(s => tRow(s, true)).join("")).join("");
+}
+const tRow = (t, sub) => `<div class="tr ${sub ? "sub" : ""}">${key(t.k)}<span>${esc(t.s)}</span>
+  <span class="muted hide-s">${esc(t.a || "—")}</span><span class="hide-s ${overdue(t) ? "due-late" : "muted"}">${fmt(t.dd)}</span><span class="pill s-${t.st}">${ST[t.st]}</span></div>`;
+function orphanCard() {
+  const l = tasksOf("_none"); if (!l.length) return "";
+  const open = ui.open.has("_none");
+  return `<section class="card"><div class="ep ${open ? "open" : ""}" data-ep="_none" style="padding:0 16px">
+    <div class="ep-h"><span class="car">▸</span><span class="muted">—</span><span><b>Задачи без эпика</b></span><span class="muted hide-s">${l.length} задач</span><span></span><span></span></div>
+    <div class="ep-tasks">${open ? taskRows("_none") : ""}</div></div></section>`;
+}
 
-// ---- Idea form ----------------------------------------------------------------
-const dlg = document.getElementById("ideaDlg"), form = document.getElementById("ideaForm"),
-      msg = document.getElementById("msg"), send = document.getElementById("sendIdea");
-document.getElementById("openIdea").onclick = () => { msg.className = "msg"; dlg.showModal(); };
-document.getElementById("closeIdea").onclick = () => dlg.close();
+// ----- Gantt -------------------------------------------------------------------
+const PX = { week: 14, month: 5, quarter: 2 };
+const dnum = d => Math.floor(Date.parse(d + "T00:00:00Z") / 864e5);
+function ganttView() {
+  const rows = [];   // {kind, label, item, color}
+  for (const b of D.blocks) {
+    const eps = b.subs.flatMap(s => s.epics).filter(passes); if (!eps.length) continue;
+    rows.push({ kind: "blk", label: b.name, color: b.color });
+    for (const e of eps) {
+      rows.push({ kind: "ep", item: e });
+      if (ui.gOpen.has(e.k)) for (const t of tasksOf(e.k)) { rows.push({ kind: "task", item: t }); for (const s of tasksOf(t.k)) rows.push({ kind: "sub", item: s }); }
+    }
+  }
+  const dates = rows.filter(r => r.item).flatMap(r => [r.item.sd, r.item.dd]).filter(Boolean).concat(today);
+  const pad = 14, d0 = Math.min(...dates.map(dnum)) - pad, d1 = Math.max(...dates.map(dnum)) + pad;
+  const px = PX[ui.zoom], W = (d1 - d0) * px, x = d => (dnum(d) - d0) * px;
+  // month/quarter/week ticks
+  const ticks = []; let cur = new Date(d0 * 864e5);
+  cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth(), 1));
+  while (cur.getTime() / 864e5 < d1) {
+    const iso = cur.toISOString().slice(0, 10), m = cur.getUTCMonth();
+    if (ui.zoom !== "quarter" || m % 3 === 0)
+      ticks.push({ x: Math.max(0, x(iso)), label: ui.zoom === "quarter" ? `Q${m / 3 + 1} ${cur.getUTCFullYear()}` : cur.toLocaleDateString("ru-RU", { month: "short", year: "2-digit", timeZone: "UTC" }) });
+    cur = new Date(Date.UTC(cur.getUTCFullYear(), m + 1, 1));
+  }
+  if (ui.zoom === "week") { // add Monday ticks
+    for (let d = d0; d < d1; d++) if (new Date(d * 864e5).getUTCDay() === 1) ticks.push({ x: (d - d0) * px, label: new Date(d * 864e5).getUTCDate(), minor: true });
+  }
+  const left = rows.map(r => {
+    if (r.kind === "blk") return `<div class="g-row blk" style="border-left:4px solid ${r.color}">${esc(r.label)}</div>`;
+    const it = r.item;
+    if (r.kind === "ep") return `<div class="g-row ep" data-gep="${it.k}" title="${esc(it.s)}"><span class="car" style="${ui.gOpen.has(it.k) ? "transform:rotate(90deg)" : ""}">▸</span>${key(it.k)}<span class="ttl">${esc(it.s)}</span></div>`;
+    return `<div class="g-row task ${r.kind === "sub" ? "sub" : ""}" title="${esc(it.s)} · ${esc(it.a || "")}">${key(it.k)}<span class="ttl">${esc(it.s)}</span></div>`;
+  }).join("");
+  const lanes = rows.map(r => {
+    if (r.kind === "blk") return `<div class="g-lane blk"></div>`;
+    const it = r.item, od = overdue(it) ? " overdue" : "", tip = `${it.k} · ${it.s}\n${fmt(it.sd)} – ${fmt(it.dd)} · ${ST[it.st]}${it.a ? " · " + it.a : ""}`;
+    let el = "";
+    if (it.sd && it.dd) el = `<div class="g-bar ${r.kind === "ep" ? "ep" : ""} ${it.st}${od}" style="left:${x(it.sd)}px;width:${Math.max(4, x(it.dd) - x(it.sd) + px)}px" title="${esc(tip)}"></div>`;
+    else if (it.dd) el = `<div class="g-dia ${it.st}" style="left:${x(it.dd) + px / 2}px" title="${esc(tip)}"></div>`;
+    return `<div class="g-lane">${el}</div>`;
+  }).join("");
+  return `<div class="card"><div class="gantt"><div class="g-grid">
+      <div class="g-head-l">Эпики и задачи</div>
+      <div class="g-head-r" style="width:${W}px">${ticks.map(t => `<div class="g-month" style="left:${t.x}px;${t.minor ? "top:22px;height:22px;border-left-color:var(--soft)" : ""}">${t.label}</div>`).join("")}</div>
+      <div class="g-left">${left}</div>
+      <div style="position:relative;width:${W}px">${ticks.filter(t => !t.minor).map(t => `<div class="g-mline" style="left:${t.x}px"></div>`).join("")}<div class="g-today" style="left:${x(today)}px" title="Сегодня"></div>${lanes}</div>
+    </div></div></div>
+    <div class="legend"><span><span class="sw" style="background:var(--done)"></span>Готово</span><span><span class="sw" style="background:var(--prog)"></span>В работе</span>
+      <span><span class="sw" style="background:var(--todo)"></span>К выполнению</span><span><span class="sw" style="box-shadow:0 0 0 2px var(--bad) inset"></span>Просрочено</span>
+      <span>◆ задача только со сроком (без даты начала)</span><span><span class="sw" style="background:var(--bad);width:2px"></span>Сегодня</span></div>`;
+}
+
+// ===== Report page =============================================================
+function outcome(t) {
+  if (!t.dd) return null;
+  if (t.st === "done") return t.rd && t.rd <= t.dd ? "ontime" : "late";
+  return t.dd < today ? "overdue" : "upcoming";
+}
+function blockOf(t) { // walk up to the epic
+  let p = t.p; const seen = new Set();
+  while (p && !seen.has(p)) { seen.add(p); const e = D.epics.find(x => x.k === p); if (e) return e.b || NO_BLOCK; p = (D.issues.find(x => x.k === p) || {}).p; }
+  return "Задачи без эпика";
+}
+function stats(list) {
+  const c = { ontime: 0, late: 0, overdue: 0, upcoming: 0, nodue: 0 };
+  for (const t of list) c[outcome(t) || "nodue"]++;
+  c.due = c.ontime + c.late + c.overdue; c.rate = c.due ? c.ontime / c.due : null; return c;
+}
+const rateCls = r => r == null ? "" : r >= .8 ? "g" : r >= .5 ? "y" : "b";
+const pct = r => r == null ? "—" : Math.round(r * 100) + "%";
+function reportPage() {
+  const blocks = [...new Set(D.issues.map(blockOf))];
+  const list = D.issues.filter(t => ui.rBlock === "all" || blockOf(t) === ui.rBlock);
+  const T = stats(list);
+  const people = {}; for (const t of list) (people[t.a || "Без исполнителя"] ||= []).push(t);
+  const pRows = Object.entries(people).map(([n, l]) => [n, stats(l)]).filter(([, c]) => c.due + c.upcoming).sort((a, b) => b[1].due - a[1].due);
+  const bRows = blocks.map(b => [b, stats(D.issues.filter(t => blockOf(t) === b))]).sort((a, b) => b[1].due - a[1].due);
+  const tbl = (head, rows) => `<div class="card"><table><thead><tr><th>${head}</th><th class="r">Со сроком, наступил</th><th class="r">В срок</th><th class="r">С опозданием</th><th class="r">Просрочено, открыто</th><th class="r">Срок впереди</th><th class="r">% в срок</th><th style="width:22%"></th></tr></thead><tbody>
+    ${rows.map(([n, c]) => `<tr><td>${esc(n)}</td><td class="r">${c.due}</td><td class="r">${c.ontime}</td><td class="r">${c.late}</td><td class="r">${c.overdue}</td><td class="r muted">${c.upcoming}</td>
+      <td class="r"><span class="rate ${rateCls(c.rate)}">${pct(c.rate)}</span></td>
+      <td>${c.due ? `<div class="bar"><span style="width:${c.ontime / c.due * 100}%;background:var(--done)"></span><span style="width:${c.late / c.due * 100}%;background:var(--late)"></span><span style="width:${c.overdue / c.due * 100}%;background:var(--bad)"></span></div>` : ""}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  return `<div class="toolbar"><label style="display:flex;gap:8px;align-items:center;color:var(--muted)">Блок
+      <select id="rBlock"><option value="all">Все блоки</option>${blocks.map(b => `<option ${ui.rBlock === b ? "selected" : ""}>${esc(b)}</option>`).join("")}</select></label></div>
+    <section class="kpis">
+      <div class="kpi"><div class="n rate ${rateCls(T.rate)}">${pct(T.rate)}</div><div class="l">Выполнено в срок, итого</div></div>
+      <div class="kpi"><div class="n">${T.ontime}</div><div class="l">Закрыто в срок</div></div>
+      <div class="kpi"><div class="n" style="color:var(--late)">${T.late}</div><div class="l">Закрыто с опозданием</div></div>
+      <div class="kpi"><div class="n" style="color:var(--bad)">${T.overdue}</div><div class="l">Просрочено и открыто</div></div>
+      <div class="kpi"><div class="n">${T.upcoming}</div><div class="l">Срок ещё не наступил</div></div>
+    </section>
+    <h2 class="h2">По исполнителям</h2>${tbl("Исполнитель", pRows)}
+    <h2 class="h2">По блокам</h2>${tbl("Блок", bRows)}
+    <p class="note">% в срок = задачи, закрытые не позже срока ÷ все задачи, у которых срок уже наступил (закрытые в срок + закрытые с опозданием + просроченные открытые).
+      Учитываются задачи и подзадачи с заполненным сроком; без срока — ${T.nodue} шт., в расчёт не входят. Исполнитель — текущий assignee задачи.</p>
+    <div class="legend"><span><span class="sw" style="background:var(--done)"></span>В срок</span><span><span class="sw" style="background:var(--late)"></span>С опозданием</span><span><span class="sw" style="background:var(--bad)"></span>Просрочено</span></div>`;
+}
+
+// ===== Events ==================================================================
+$("app").addEventListener("click", e => {
+  const seg = e.target.closest(".seg button");
+  if (seg) { ui[seg.parentElement.dataset.k] = seg.dataset.v; return render(); }
+  const act = e.target.closest("[data-act]")?.dataset.act;
+  if (act === "expandAll") { D.epics.forEach(x => ui.gOpen.add(x.k)); return render(); }
+  if (act === "collapseAll") { ui.gOpen.clear(); return render(); }
+  if (e.target.closest("a")) return;
+  const g = e.target.closest("[data-gep]");
+  if (g) { const k = g.dataset.gep; ui.gOpen.has(k) ? ui.gOpen.delete(k) : ui.gOpen.add(k); return render(); }
+  const ep = e.target.closest(".ep-h")?.parentElement;
+  if (ep) { const k = ep.dataset.ep; if (ui.open.has(k)) { ui.open.delete(k); ep.classList.remove("open"); }
+    else { ui.open.add(k); ep.classList.add("open"); ep.querySelector(".ep-tasks").innerHTML = taskRows(k); } return; }
+  const bh = e.target.closest(".blk-h"); if (bh) bh.parentElement.classList.toggle("collapsed");
+});
+$("app").addEventListener("change", e => { if (e.target.id === "rBlock") { ui.rBlock = e.target.value; render(); } });
+
+$("refresh").onclick = async () => {
+  const b = $("refresh"); b.disabled = true; b.textContent = "↻ Обновляю…";
+  try {
+    if (WORKER_URL) { await load(true); toast("Данные обновлены из Jira"); }
+    else { await load(false); toast("Живое обновление из Jira заработает после подключения Cloudflare Worker. Сейчас перезагружен снимок data.json.", 6000); }
+  } catch (err) { toast("Не удалось обновить: " + err.message); }
+  finally { b.disabled = false; b.textContent = "↻ Обновить"; }
+};
+
+const dlg = $("ideaDlg"), form = $("ideaForm"), msg = $("msg"), send = $("sendIdea");
+$("openIdea").onclick = () => { msg.className = "msg"; dlg.showModal(); };
+$("closeIdea").onclick = () => dlg.close();
 form.addEventListener("submit", async e => {
   e.preventDefault();
   const d = Object.fromEntries(new FormData(form));
-  if (!d.summary.trim() || !d.author.trim() || !d.code.trim()) {
-    msg.className = "msg err"; msg.textContent = "Please fill in title, name and team code."; return;
-  }
-  if (!IDEA_ENDPOINT) {
-    msg.className = "msg err"; msg.textContent = "The idea form is not connected yet (no endpoint configured)."; return;
-  }
+  if (!d.summary.trim() || !d.author.trim() || !d.code.trim()) { msg.className = "msg err"; msg.textContent = "Заполните название, имя и код команды."; return; }
+  if (!WORKER_URL) { msg.className = "msg err"; msg.textContent = "Форма ещё не подключена к Jira (не настроен Worker)."; return; }
   send.disabled = true; msg.className = "msg";
   try {
-    const r = await fetch(IDEA_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
+    const r = await fetch(WORKER_URL.replace(/\/$/, "") + "/idea", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || `Error ${r.status}`);
-    msg.className = "msg ok";
-    msg.innerHTML = `Created <a href="${JIRA}${esc(j.key)}" target="_blank" rel="noopener">${esc(j.key)}</a>. Thank you!`;
-    form.reset();
-  } catch (err) {
-    msg.className = "msg err"; msg.textContent = "Could not send: " + err.message;
-  } finally { send.disabled = false; }
+    if (!r.ok) throw new Error(j.error || "Ошибка " + r.status);
+    msg.className = "msg ok"; msg.innerHTML = `Создана задача <a href="${JIRA}${esc(j.key)}" target="_blank" rel="noopener">${esc(j.key)}</a>. Спасибо!`; form.reset();
+  } catch (err) { msg.className = "msg err"; msg.textContent = "Не удалось отправить: " + err.message; }
+  finally { send.disabled = false; }
 });
+
+// ===== Boot ====================================================================
+(async () => {
+  try { await load(!!WORKER_URL); }
+  catch (e) { if (WORKER_URL) { try { await load(false); toast("Jira недоступна, показан снимок"); } catch (e2) { $("app").innerHTML = `<p class="muted">Не удалось загрузить данные: ${esc(e2.message)}</p>`; } }
+    else $("app").innerHTML = `<p class="muted">Не удалось загрузить данные: ${esc(e.message)}</p>`; }
+})();
 </script>
 </body>
 </html>

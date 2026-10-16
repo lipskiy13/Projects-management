@@ -1,24 +1,28 @@
 # Goldmans Project Portfolio
 
-A static page (GitHub Pages) showing the Jira GOLDMANS epics grouped by the "Блок" field, plus a form that adds ideas as tasks under the epic **GOLDMANS-1075 Backlog / Ideas / Problems**.
+Site: https://lipskiy13.github.io/Projects-management/
 
-- `index.html` is the site. The project data is a snapshot from 16 Oct 2026, embedded in the `BLOCKS` constant.
-- `worker/worker.js` is a Cloudflare Worker. It holds the Jira token and creates the tasks. A token can't be kept in a public static site, so it lives here instead.
+The site has two pages:
+- **План** (Plan): the Jira GOLDMANS epics grouped by the "Блок" field, with their tasks and subtasks. It has a list view and a Gantt view styled like the Jira timeline.
+- **Отчёт по эффективности** (Efficiency report): the share of tasks closed on time, in total, per assignee and per block.
 
-## 1. Publish the site (GitHub Pages)
-1. Push this repository to GitHub.
-2. Go to Settings → Pages → Source and choose "Deploy from a branch", branch `main`, folder `/ (root)`.
-3. The site appears at `https://<user>.github.io/goldmans-portfolio/`.
+Other features:
+- The **↻ Обновить** (Refresh) button loads live data from Jira through the Worker. Without the Worker it reloads the `data.json` snapshot.
+- The **+ Идея** (Idea) button creates a task in the epic GOLDMANS-1075 Backlog / Ideas / Problems.
 
-## 2. Connect the idea form (Cloudflare Worker, free)
-1. Go to dash.cloudflare.com → Workers & Pages → Create → Worker. Name it, for example, `goldmans-ideas`. Paste in the contents of `worker/worker.js` and deploy.
-2. Go to the Worker → Settings → Variables and secrets, and add:
-   - `JIRA_EMAIL` (secret): the email of the Atlassian account that will create the tasks.
+## Files
+- `index.html` is the site.
+- `data.json` is a snapshot of Jira data (epics, tasks, subtasks). The site shows it when the Worker is not connected.
+- `worker/worker.js` is the Cloudflare Worker. It holds the Jira token, which can't be kept in a public site. It serves `GET /data` for live data and `POST /idea` to create an idea.
+
+## Connecting the Worker (free, about 10 minutes)
+1. Go to dash.cloudflare.com → Workers & Pages → Create → Worker. Name it `goldmans-portfolio`, paste in the contents of `worker/worker.js`, and click Deploy.
+2. Go to Worker → Settings → Variables and secrets and add:
+   - `JIRA_EMAIL` (secret): the email of the Atlassian account.
    - `JIRA_TOKEN` (secret): an API token from https://id.atlassian.com/manage-profile/security/api-tokens
-   - `TEAM_CODE` (secret): a code word for the team. The site is public, and this code keeps spam out.
-   - `ALLOWED_ORIGIN` (text): `https://<user>.github.io`
-3. Copy the Worker URL (`https://goldmans-ideas.<subdomain>.workers.dev`) into `IDEA_ENDPOINT` in `index.html`, then commit.
-4. Test: send an idea from the site. A task named `[Idea] …` should appear in GOLDMANS-1075.
+   - `TEAM_CODE` (secret): a code word for the team, used to protect the idea form from spam.
+   - `ALLOWED_ORIGIN` (text): `https://lipskiy13.github.io`
+3. Put the Worker URL (`https://goldmans-portfolio.<subdomain>.workers.dev`) into `WORKER_URL` in `index.html`.
 
-## Updating the data
-Ask Claude to refresh the snapshot. It re-reads the epics from Jira and updates `BLOCKS` in `index.html`.
+## Efficiency metric
+% on time = tasks closed no later than their due date ÷ all tasks whose due date has already passed. The denominator counts tasks closed on time, tasks closed late, and overdue tasks that are still open. Tasks and subtasks with a due date are included. Tasks without a due date are left out.
