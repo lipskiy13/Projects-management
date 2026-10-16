@@ -2,13 +2,14 @@
 
 Site: https://lipskiy13.github.io/Projects-management/
 
-The site has two pages:
-- **План** (Plan): the Jira GOLDMANS epics grouped by the "Блок" field, with their tasks and subtasks. It has a list view and a Gantt view styled like the Jira timeline.
-- **Отчёт по эффективности** (Efficiency report): the share of tasks closed on time, in total, per assignee and per block.
+Pages:
+- **Plan**: Jira GOLDMANS epics grouped by the "Блок" field (block / subgroup filters), with tasks and subtasks; list view and a Gantt view like the Jira timeline. Assignees are shown as initials avatars.
+- **Backlog**: tasks under GOLDMANS-1075 Backlog / Ideas / Problems.
+- **Efficiency report**: on-time rate in total, per assignee and per block. Hidden for now (`SHOW_REPORT = false` in `index.html`).
 
 Other features:
-- The **↻ Обновить** (Refresh) button loads live data from Jira through the Worker. Without the Worker it reloads the `data.json` snapshot.
-- The **+ Идея** (Idea) button creates a task in the epic GOLDMANS-1075 Backlog / Ideas / Problems.
+- The **↻ Refresh** button loads live data from Jira through the Worker. Without the Worker it reloads the `data.json` snapshot.
+- The **+ Idea** button creates a task in the epic GOLDMANS-1075 Backlog / Ideas / Problems.
 
 ## Files
 - `index.html` is the site.
@@ -20,7 +21,6 @@ Other features:
 2. Go to Worker → Settings → Variables and secrets and add:
    - `JIRA_EMAIL` (secret): the email of the Atlassian account.
    - `JIRA_TOKEN` (secret): an API token from https://id.atlassian.com/manage-profile/security/api-tokens
-   - `TEAM_CODE` (secret): a code word for the team, used to protect the idea form from spam.
    - `ALLOWED_ORIGIN` (text): `https://lipskiy13.github.io`
 3. Put the Worker URL (`https://goldmans-portfolio.<subdomain>.workers.dev`) into `WORKER_URL` in `index.html`.
 

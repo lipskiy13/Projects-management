@@ -5,7 +5,6 @@
 // Secrets / variables (Cloudflare dashboard → Worker → Settings → Variables and secrets):
 //   JIRA_EMAIL      – Atlassian account email used for the API (secret)
 //   JIRA_TOKEN      – Atlassian API token, https://id.atlassian.com/manage-profile/security/api-tokens (secret)
-//   TEAM_CODE       – shared code the team types in the idea form; blocks spam from the public site (secret)
 //   ALLOWED_ORIGIN  – the site origin, e.g. https://lipskiy13.github.io (plain text)
 
 const JIRA_SITE = "https://goldmans.atlassian.net";
@@ -85,14 +84,15 @@ async function createIdea(request, env, auth, reply) {
   try { d = await request.json(); } catch { return reply(400, { error: "Invalid JSON" }); }
 
   if (d.website) return reply(200, { key: "OK" }); // honeypot: silently drop bots
-  if (!env.TEAM_CODE || d.code !== env.TEAM_CODE) return reply(403, { error: "Неверный код команды" });
+  const AUTHORS = ["Ilya", "Kostya", "Liza", "Mark", "Misha"];
+  if (!AUTHORS.includes(d.author)) return reply(400, { error: "Choose your name from the list" });
 
   const clean = (v, max) => String(v || "").trim().slice(0, max);
   const summary = clean(d.summary, 200);
   const author = clean(d.author, 80);
   const description = clean(d.description, 5000);
   const kind = d.kind === "Problem" ? "Problem" : "Idea";
-  if (!summary || !author) return reply(400, { error: "Нужны название и имя" });
+  if (!summary) return reply(400, { error: "Title is required" });
 
   const para = text => ({ type: "paragraph", content: text ? [{ type: "text", text }] : [] });
   const body = {
