@@ -9,13 +9,13 @@
     --bg:#f6f5f1; --card:#fff; --ink:#1d1f24; --muted:#6b6f78; --line:#e4e2dc; --soft:#f0eee9;
     --done:#3f8f5a; --done-bg:#e3f1e7; --prog:#2f6fd6; --prog-bg:#e2ecfb; --todo:#8a8f99; --todo-bg:#eeeff1;
     --late:#c2410c; --bad:#b42318; --bad-bg:#fde7e5;
-    --accent:#1d1f24; --b1:#2f5aa8; --b2:#2f8a64; --b3:#c47a1c; --b4:#7a4fb0; --b0:#8a8f99;
+    --accent:#1d1f24; --b1:#2f5aa8; --b2:#2f8a64; --b3:#c47a1c; --b4:#7a4fb0; --b5:#0e7490; --b0:#8a8f99;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --bg:#15171b; --card:#1e2126; --ink:#ecedef; --muted:#9aa0aa; --line:#2c3037; --soft:#24272d;
     --done:#6cc28a; --done-bg:#1f3428; --prog:#7aa7f0; --prog-bg:#1d2a42; --todo:#a3a8b1; --todo-bg:#2a2d33;
     --late:#f0a06a; --bad:#f2837a; --bad-bg:#3b1f1d;
-    --accent:#ecedef; --b1:#7aa0e8; --b2:#6cc29a; --b3:#e3a75a; --b4:#b294e0; --b0:#a3a8b1; } }
+    --accent:#ecedef; --b1:#7aa0e8; --b2:#6cc29a; --b3:#e3a75a; --b4:#b294e0; --b5:#4fb8cf; --b0:#a3a8b1; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
   .wrap { max-width:1280px; margin:0 auto; padding:24px 16px 64px; }
@@ -161,8 +161,8 @@ const WORKER_URL = "";
 const SHOW_REPORT = false;           // efficiency report page is hidden for now
 const JIRA = "https://goldmans.atlassian.net/browse/";
 const BACKLOG_EPIC = "GOLDMANS-1075";
-const BLOCK_ORDER = ["Digital transformation", "Developing sales effectiveness", "Development of hiring", "Development of onboarding and training"];
-const BLOCK_COLOR = { "Digital transformation": "var(--b1)", "Developing sales effectiveness": "var(--b2)", "Development of hiring": "var(--b3)", "Development of onboarding and training": "var(--b4)" };
+const BLOCK_ORDER = ["Digital transformation", "Process managment", "Developing sales effectiveness", "Development of hiring", "Development of onboarding and training"];
+const BLOCK_COLOR = { "Digital transformation": "var(--b1)", "Developing sales effectiveness": "var(--b2)", "Development of hiring": "var(--b3)", "Development of onboarding and training": "var(--b4)", "Process managment": "var(--b5)" };
 const NO_BLOCK = "No block";
 const ST = { done: "Done", prog: "In progress", todo: "To do" };
 // Jira name → short name, initials, avatar colour
