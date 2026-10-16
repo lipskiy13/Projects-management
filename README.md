@@ -22,7 +22,7 @@ Other features:
    - `JIRA_EMAIL` (secret): the email of the Atlassian account.
    - `JIRA_TOKEN` (secret): an API token from https://id.atlassian.com/manage-profile/security/api-tokens
    - `ALLOWED_ORIGIN` (text): `https://lipskiy13.github.io`
-3. Put the Worker URL (`https://goldmans-portfolio.<subdomain>.workers.dev`) into `WORKER_URL` in `index.html`.
+3. Worker URL (already set in `index.html`): https://projects-management.kostya-508.workers.dev — deployed automatically by Cloudflare from this repo (`wrangler.toml`). Secrets must be in Settings → Variables and Secrets (runtime), not in Builds.
 
 ## Efficiency metric
 % on time = tasks closed no later than their due date ÷ all tasks whose due date has already passed. The denominator counts tasks closed on time, tasks closed late, and overdue tasks that are still open. Tasks and subtasks with a due date are included. Tasks without a due date are left out.
