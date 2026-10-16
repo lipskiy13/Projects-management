@@ -28,7 +28,7 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     try {
-      if (request.method === "GET" && path === "/data") return reply(200, await loadData(auth));
+      if (request.method === "GET" && path === "/data") return reply(200, await loadData(auth, env));
       if (request.method === "POST" && (path === "/idea" || path === "")) return await createIdea(request, env, auth, reply);
       return reply(404, { error: "Not found" });
     } catch (e) {
@@ -65,16 +65,17 @@ function base(i) {
   };
 }
 
-async function loadData(auth) {
-  const common = ["summary", "status", "assignee", "duedate", "resolutiondate", F_START];
-  const [epics, issues] = await Promise.all([
-    search(auth, `project = ${PROJECT_KEY} AND issuetype = Epic ORDER BY key ASC`, [...common, F_BLOCK]),
-    search(auth, `project = ${PROJECT_KEY} AND issuetype != Epic ORDER BY key ASC`, [...common, "parent", "issuetype"]),
-  ]);
+async function loadData(auth, env) {
+  if (!env.JIRA_EMAIL || !env.JIRA_TOKEN) throw new Error("JIRA_EMAIL / JIRA_TOKEN secrets are not set in Cloudflare");
+  const me = await fetch(`${JIRA_SITE}/rest/api/3/myself`, { headers: { Authorization: auth, Accept: "application/json" } });
+  if (!me.ok) throw new Error(`Jira did not accept JIRA_EMAIL / JIRA_TOKEN (HTTP ${me.status})`);
+  const all = await search(auth, `project = ${PROJECT_KEY} ORDER BY key ASC`,
+    ["summary", "status", "assignee", "duedate", "resolutiondate", F_START, F_BLOCK, "parent", "issuetype"]);
+  const isEpic = i => i.fields.issuetype?.hierarchyLevel === 1;
   return {
     generated: new Date().toISOString(),
-    epics: epics.map(e => ({ ...base(e), b: e.fields[F_BLOCK]?.value || null, g: e.fields[F_BLOCK]?.child?.value || null })),
-    issues: issues.map(i => ({ ...base(i), p: i.fields.parent?.key || null, t: i.fields.issuetype?.subtask ? "sub" : "task" })),
+    epics: all.filter(isEpic).map(e => ({ ...base(e), b: e.fields[F_BLOCK]?.value || null, g: e.fields[F_BLOCK]?.child?.value || null })),
+    issues: all.filter(i => !isEpic(i)).map(i => ({ ...base(i), p: i.fields.parent?.key || null, t: i.fields.issuetype?.subtask ? "sub" : "task" })),
   };
 }
 
