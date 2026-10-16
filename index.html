@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goldmans Project Portfolio</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #1d1f24; --muted: #6b6f78; --line: #e4e2dc;
+    --done: #3f8f5a; --done-bg: #e3f1e7;
+    --prog: #2f6fd6; --prog-bg: #e2ecfb;
+    --todo: #8a8f99; --todo-bg: #eeeff1;
+    --accent: #1d1f24;
+    --b1: #2f5aa8; --b2: #2f8a64; --b3: #c47a1c; --b4: #7a4fb0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171b; --card: #1e2126; --ink: #ecedef; --muted: #9aa0aa; --line: #2c3037;
+      --done: #6cc28a; --done-bg: #1f3428; --prog: #7aa7f0; --prog-bg: #1d2a42;
+      --todo: #a3a8b1; --todo-bg: #2a2d33; --accent: #ecedef;
+      --b1: #7aa0e8; --b2: #6cc29a; --b3: #e3a75a; --b4: #b294e0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+  header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
+  h1 { font-size: 28px; margin: 0; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); margin: 4px 0 0; }
+  .btn { background: var(--accent); color: var(--bg); border: 0; border-radius: 8px; padding: 10px 16px;
+    font-weight: 600; font-size: 14px; cursor: pointer; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .kpi .n { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .kpi .l { color: var(--muted); font-size: 13px; }
+  .bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--todo-bg); }
+  .bar span { display: block; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
+    padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .block { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+  .block-h { display: grid; grid-template-columns: 1fr 260px; gap: 16px; align-items: center; padding: 16px 18px;
+    border-left: 5px solid var(--bc); cursor: pointer; }
+  .block-h h2 { font-size: 18px; margin: 0; }
+  .block-h .meta { color: var(--muted); font-size: 13px; }
+  .subg { padding: 4px 18px 14px 23px; }
+  .subg h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 8px;
+    display: flex; justify-content: space-between; gap: 12px; }
+  .row { display: grid; grid-template-columns: 120px 1fr auto; gap: 12px; align-items: center; padding: 8px 0;
+    border-top: 1px solid var(--line); font-size: 14px; }
+  .row a { color: var(--muted); text-decoration: none; font-variant-numeric: tabular-nums; font-size: 13px; }
+  .row a:hover { color: var(--ink); text-decoration: underline; }
+  .pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+  .s-done { color: var(--done); background: var(--done-bg); }
+  .s-prog { color: var(--prog); background: var(--prog-bg); }
+  .s-todo { color: var(--todo); background: var(--todo-bg); }
+  .collapsed .subg { display: none; }
+  .caret { transition: transform .15s; display: inline-block; margin-right: 6px; color: var(--muted); }
+  .collapsed .caret { transform: rotate(-90deg); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 24px; }
+  dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(520px, calc(100% - 32px));
+    background: var(--card); color: var(--ink); }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  form { padding: 20px; display: grid; gap: 12px; }
+  form h2 { margin: 0; font-size: 18px; }
+  label { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+  input, textarea, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 10px; width: 100%; }
+  textarea { min-height: 110px; resize: vertical; }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .msg { font-size: 13px; padding: 8px 10px; border-radius: 8px; display: none; }
+  .msg.ok { display: block; color: var(--done); background: var(--done-bg); }
+  .msg.err { display: block; color: #c0392b; background: #fbe9e7; }
+  .hp { position: absolute; left: -9999px; }
+  @media (max-width: 720px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .block-h { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr auto; }
+    .row a { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Project Portfolio</h1>
+      <p class="sub">Goldmans epics in Jira, grouped by block and subgroup</p>
+    </div>
+    <button class="btn" id="openIdea">+ Add an idea</button>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+  <div class="filters" id="filters"></div>
+  <main id="blocks"></main>
+  <footer id="foot"></footer>
+</div>
+
+<dialog id="ideaDlg">
+  <form id="ideaForm" novalidate>
+    <h2>New idea for the backlog</h2>
+    <p class="sub" style="margin:0">Creates a task in Jira under <b>GOLDMANS-1075 Backlog / Ideas / Problems</b>.</p>
+    <label>Type
+      <select name="kind">
+        <option>Idea</option><option>Problem</option>
+      </select>
+    </label>
+    <label>Title *<input name="summary" maxlength="200" required placeholder="Short name of the idea"></label>
+    <label>Description<textarea name="description" maxlength="5000" placeholder="What, why, expected effect"></textarea></label>
+    <label>Your name *<input name="author" maxlength="80" required></label>
+    <label>Team code *<input name="code" maxlength="80" required autocomplete="off"></label>
+    <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="msg" id="msg"></div>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="closeIdea">Cancel</button>
+      <button type="submit" class="btn" id="sendIdea">Send to Jira</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+// ---- Config ----------------------------------------------------------------
+// URL of the Cloudflare Worker that creates the Jira task (see worker/README).
+const IDEA_ENDPOINT = "";
+const JIRA = "https://goldmans.atlassian.net/browse/";
+const SNAPSHOT_DATE = "16 Oct 2026";
+
+// ---- Data snapshot (Jira, field "Блок") -------------------------------------
+const BLOCKS = [
+  { name: "Digital transformation", color: "var(--b1)", subs: [
+    { name: "Data model development", items: [
+      [1120,"AI-powered tool for finding newly opened businesses","todo"],
+      [1121,"AI Event Search Tool","todo"],
+      [1123,"Scraping competitors' customers","todo"],
+      [756,"WhatsApp integration","prog"],
+      [757,"Telephony integration","todo"],
+      [1124,"Email integration","todo"],
+      [805,"Installation of conversation recording devices","todo"],
+      [980,"Switching to corporate phones","prog"],
+      [1161,"Broker feedback form","prog"]]},
+    { name: "IT systems and metrics", items: [
+      [1,"IT system development","done"],[3,"Confluence Implementation","done"],
+      [4,"JIRA Implementation","done"],[5,"Slack Implementation","done"],
+      [12,"CRM implementation","done"],[18,"Website Development","done"],
+      [19,"Revolut People Implementation","done"],
+      [753,"Integration with SalesForce","prog"],
+      [826,"Establishing a reporting system and NIPs","prog"],
+      [806,"Developing planned vs. actual results on the web service","prog"],
+      [1122,"Developing the technical specifications for a decision-making system","prog"],
+      [754,"Development of a process model","prog"],
+      [1108,"Slack Bot Development","prog"],
+      [1151,"Tool for automated reminders","prog"],
+      [1126,"Integration of all processes into the personal account","todo"]]}]},
+  { name: "Developing sales effectiveness", color: "var(--b2)", subs: [
+    { name: "PDQ", items: [
+      [1106,"Formulation and integration of the production plan","prog"],
+      [1105,"Integration of the lead disqualification process","prog"],
+      [1115,"Launching Email Campaigns (PDQ)","prog"],
+      [1107,"Integrating the lead follow-up process in established areas","todo"],
+      [824,"Online broker dispatching","todo"],
+      [751,"Development of a negotiation analysis agent","todo"],
+      [825,"Launching a partner channel","todo"],
+      [1166,"Partner bot","todo"],
+      [827,"Developing the LinkedIn channel","todo"],
+      [831,"Brand development","todo"],
+      [829,"Launching the franchise in Manchester and Birmingham","todo"]]},
+    { name: "Funding", items: [
+      [752,"Launching Email Campaigns (Funding)","prog"],
+      [755,"Developing the funding process","todo"]]},
+    { name: "Additional sales", items: [
+      [828,"Implementation of an upsell process for existing clients","todo"]]}]},
+  { name: "Development of hiring", color: "var(--b3)", subs: [
+    { name: null, items: [
+      [1127,"Calculation of broker's hiring and onboarding costs","todo"]]}]},
+  { name: "Development of onboarding and training", color: "var(--b4)", subs: [
+    { name: null, items: [
+      [20,"Onboarding process","done"],[21,"Q&A","done"],[16,"iSpring implementation","done"],
+      [1125,"Digitization of the learning process","todo"]]}]},
+];
+
+// ---- Rendering ---------------------------------------------------------------
+const LABEL = { done: "Done", prog: "In progress", todo: "To do" };
+const ORDER = { done: 0, prog: 1, todo: 2 };
+const count = items => items.reduce((a, [, , s]) => (a[s]++, a), { done: 0, prog: 0, todo: 0 });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function bar(c) {
+  const t = c.done + c.prog + c.todo || 1;
+  return `<div class="bar" role="img" aria-label="${c.done} done, ${c.prog} in progress, ${c.todo} to do">
+    <span style="width:${c.done / t * 100}%;background:var(--done)"></span>
+    <span style="width:${c.prog / t * 100}%;background:var(--prog)"></span></div>`;
+}
+
+const all = BLOCKS.flatMap(b => b.subs.flatMap(s => s.items));
+const tot = count(all);
+document.getElementById("kpis").innerHTML = [
+  [all.length, "Projects"], [tot.done, "Done"], [tot.prog, "In progress"], [tot.todo, "To do"]
+].map(([n, l]) => `<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+
+let filter = "all";
+function renderFilters() {
+  const opts = [["all", "All"], ["prog", "In progress"], ["todo", "To do"], ["done", "Done"]];
+  document.getElementById("filters").innerHTML = opts.map(([k, l]) =>
+    `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join("");
+}
+document.getElementById("filters").addEventListener("click", e => {
+  const f = e.target.dataset.f; if (!f) return;
+  filter = f; renderFilters(); renderBlocks();
+});
+
+function renderBlocks() {
+  document.getElementById("blocks").innerHTML = BLOCKS.map((b, i) => {
+    const items = b.subs.flatMap(s => s.items), c = count(items);
+    const subs = b.subs.map(s => {
+      const rows = [...s.items].filter(([, , st]) => filter === "all" || st === filter)
+        .sort((x, y) => ORDER[x[2]] - ORDER[y[2]] || x[0] - y[0])
+        .map(([k, t, st]) => `<div class="row"><a href="${JIRA}GOLDMANS-${k}" target="_blank" rel="noopener">GOLDMANS-${k}</a>
+          <span>${esc(t)}</span><span class="pill s-${st}">${LABEL[st]}</span></div>`).join("");
+      if (!rows) return "";
+      const sc = count(s.items);
+      return `<div class="subg">${s.name ? `<h3><span>${esc(s.name)}</span><span>${sc.done}/${s.items.length} done</span></h3>` : ""}${rows}</div>`;
+    }).join("");
+    return `<section class="block" style="--bc:${b.color}">
+      <div class="block-h" data-i="${i}">
+        <div><h2><span class="caret">▾</span>${esc(b.name)}</h2>
+        <div class="meta">${items.length} projects · ${c.done} done · ${c.prog} in progress · ${c.todo} to do</div></div>
+        <div>${bar(c)}</div>
+      </div>${subs || `<div class="subg"><p class="sub">No projects with this status.</p></div>`}</section>`;
+  }).join("");
+}
+document.getElementById("blocks").addEventListener("click", e => {
+  const h = e.target.closest(".block-h"); if (h) h.parentElement.classList.toggle("collapsed");
+});
+renderFilters(); renderBlocks();
+document.getElementById("foot").innerHTML =
+  `Snapshot from Jira on ${SNAPSHOT_DATE}. <span class="dot" style="background:var(--done)"></span>Done
+   <span class="dot" style="background:var(--prog);margin-left:10px"></span>In progress
+   <span class="dot" style="background:var(--todo-bg);margin-left:10px"></span>To do`;
+
+// ---- Idea form ----------------------------------------------------------------
+const dlg = document.getElementById("ideaDlg"), form = document.getElementById("ideaForm"),
+      msg = document.getElementById("msg"), send = document.getElementById("sendIdea");
+document.getElementById("openIdea").onclick = () => { msg.className = "msg"; dlg.showModal(); };
+document.getElementById("closeIdea").onclick = () => dlg.close();
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const d = Object.fromEntries(new FormData(form));
+  if (!d.summary.trim() || !d.author.trim() || !d.code.trim()) {
+    msg.className = "msg err"; msg.textContent = "Please fill in title, name and team code."; return;
+  }
+  if (!IDEA_ENDPOINT) {
+    msg.className = "msg err"; msg.textContent = "The idea form is not connected yet (no endpoint configured)."; return;
+  }
+  send.disabled = true; msg.className = "msg";
+  try {
+    const r = await fetch(IDEA_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || `Error ${r.status}`);
+    msg.className = "msg ok";
+    msg.innerHTML = `Created <a href="${JIRA}${esc(j.key)}" target="_blank" rel="noopener">${esc(j.key)}</a>. Thank you!`;
+    form.reset();
+  } catch (err) {
+    msg.className = "msg err"; msg.textContent = "Could not send: " + err.message;
+  } finally { send.disabled = false; }
+});
+</script>
+</body>
+</html>
