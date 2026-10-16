@@ -420,12 +420,21 @@ $("refresh").onclick = async () => {
 const dlg = $("ideaDlg"), form = $("ideaForm"), msg = $("msg"), send = $("sendIdea");
 function openIdea() { msg.className = "msg"; dlg.showModal(); }
 $("openIdea").onclick = openIdea;
+if (!WORKER_URL) $("sendIdea").textContent = "Open in Jira";
 $("closeIdea").onclick = () => dlg.close();
 form.addEventListener("submit", async e => {
   e.preventDefault();
   const d = Object.fromEntries(new FormData(form));
   if (!d.summary.trim() || !d.author) { msg.className = "msg err"; msg.textContent = "Please fill in the title and choose your name."; return; }
-  if (!WORKER_URL) { msg.className = "msg err"; msg.textContent = "The form is not connected to Jira yet (Worker not configured)."; return; }
+  if (!WORKER_URL) {   // no Worker yet: open Jira's own create screen, pre-filled
+    const desc = (d.description.trim() ? d.description.trim() + "\n\n" : "") + `Submitted via portfolio site by ${d.author}.\nParent epic: ${BACKLOG_EPIC} Backlog / Ideas / Problems`;
+    const u = "https://goldmans.atlassian.net/secure/CreateIssueDetails!init.jspa?" + new URLSearchParams({
+      pid: "10034", issuetype: "10038", summary: `[${d.kind}] ${d.summary.trim()}`, description: desc });
+    window.open(u, "_blank", "noopener");
+    msg.className = "msg ok";
+    msg.innerHTML = `Jira opened in a new tab with the idea filled in. Set <b>Parent</b> to <b>${BACKLOG_EPIC}</b> and press <b>Create</b>.`;
+    return;
+  }
   send.disabled = true; msg.className = "msg";
   try {
     const r = await fetch(WORKER_URL.replace(/\/$/, "") + "/idea", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
