@@ -73,3 +73,20 @@ A test site; it will later move into the company's personal cabinet. Public, **n
 - `POST /status` `{key, to}` moves an issue to the target status through a Jira transition.
 - `POST /create` `{type: epic|task, parent?, s, desc?, aid?, sd?, dd?, block?}` returns `{key}`.
 - The existing endpoints stay: `/idea`, `/slack`, `/health`.
+
+## v3 changes (26 Oct 2026)
+- **Actual end date** is Jira's resolution date. Jira sets it automatically when an item moves to Done, from the site or in Jira, and clears it when the item is reopened. No extra field is used.
+- **Items closed before 27 Oct 2026** (`LEGACY_CUTOFF`) count as finished on their planned end date ("actual = plan", backfill rule).
+- **On time** means done and actual end ≤ planned end. Planned dates are managed by Kostya, and no baseline is stored.
+- The side panel of a done item shows "Actual end date" with an on-time or late flag.
+- **Periods**: epics are collapsed by default; click an epic to see its tasks.
+- **Statistics (Periods) and the Efficiency table** show these metrics. Epics count for the epic's assignee.
+  - **Epics:** A due in the period, % done, % not done, % done on time.
+  - **Tasks:** B due in the period, % done, % not done, % done on time.
+  - **Score**, calculated per person:
+    - week = (B ÷ 5) × % tasks on time × 10;
+    - month = 50% × (B ÷ 20) × % tasks on time × 10 + 50% × (A ÷ 4) × % epics on time × 10;
+    - with several people selected, the norms are multiplied by the number of selected people.
+  - Score colours: 8 or more is green, 5–8 is amber, below 5 is red.
+  - A bold disclaimer is always shown: the score does not measure real performance, because tasks have no effort estimates.
+- **Efficiency** adds a "Score by person" table: one person per row, one period per column.

@@ -118,7 +118,17 @@
   .pnav { display:flex; align-items:center; gap:6px; }
   .pnav .plabel { font-weight:700; min-width:230px; text-align:center; font-size:15px; }
   .navb { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; }
-  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px; }
+  .score { display:grid; grid-template-columns:180px 1fr; gap:16px; align-items:center; border:1px solid var(--line); border-left-width:5px; border-radius:12px; padding:14px 16px; margin-bottom:16px; background:var(--card); }
+  .score .n { font-size:34px; font-weight:800; letter-spacing:-.02em; } .score .l { color:var(--muted); font-size:12px; }
+  .score.g { background:var(--done-bg); border-color:var(--done); } .score.g .n { color:var(--done); }
+  .score.y { background:var(--amber-bg); border-color:var(--amber); } .score.y .n { color:var(--amber); }
+  .score.b { background:var(--bad-bg); border-color:var(--bad); } .score.b .n { color:var(--bad); }
+  .score .sf { font-size:12px; color:var(--muted); display:grid; gap:8px; }
+  .disc { font-size:13px; color:var(--ink); background:var(--amber-bg); border:1px solid var(--amber); border-radius:10px; padding:10px 12px; margin:10px 0; }
+  .disc b { color:var(--amber); }
+  .eff tr.grp td { border-top:2px solid var(--line); }
+  .h2 { font-size:16px; margin:22px 0 10px; }
   /* gantt */
   .gantt { position:relative; overflow:auto; max-height:75vh; }
   .g-grid { display:grid; grid-template-columns:380px auto; min-width:max-content; }
@@ -191,7 +201,7 @@
   .hp { position:absolute; left:-9999px; }
   .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:13px; display:none; z-index:70; max-width:90vw; }
   @media (max-width:900px) {
-    .kpis { grid-template-columns:repeat(2,1fr); } .stats { grid-template-columns:repeat(2,1fr); }
+    .kpis { grid-template-columns:repeat(2,1fr); } .stats { grid-template-columns:repeat(2,1fr); } .score { grid-template-columns:1fr; }
     .cols { display:none; }
     .ep-h, .tr { grid-template-columns:18px minmax(0,1fr) 30px 120px; } .hide-s { display:none !important; }
     .bl { grid-template-columns:minmax(0,1fr) 30px 120px; }
@@ -295,7 +305,7 @@ let D = null;
 const ui = {
   format: "list", zoom: "month", block: "all", sub: "all",
   people: new Set(PEOPLE_OPTS), statuses: new Set(STATUS_OPTS), ms: null,
-  open: new Set(), gOpen: new Set(), perClosed: new Set(),
+  open: new Set(), gOpen: new Set(), perOpen: new Set(),
   perMode: "week", perAnchor: today, statsOpen: false,
   effMode: "month", effOffset: 0,
   drawer: null, draft: null,
@@ -522,29 +532,62 @@ function periodLabel(mode, ps, pe, short) {
 const inRange = (x, ps, pe) => x.dd && (x.sd && x.sd < x.dd ? x.sd : x.dd) <= pe && x.dd >= ps;
 const dueIn = (x, ps, pe) => x.dd && x.dd >= ps && x.dd <= pe;
 const isCarried = (x, ps) => x.st !== "done" && x.dd && x.dd < ps;
-function periodStats(ps, pe) {   // A, B, D, E for one period; Block/Subgroup/People filters, carried-over excluded
+// Actual end date = Jira resolution date. Items closed before this version went live (LEGACY_CUTOFF)
+// are treated as finished on their planned end date ("actual = plan", agreed 26 Oct 2026).
+const LEGACY_CUTOFF = "2026-10-27";
+const actualEnd = x => x.st !== "done" ? null : (x.rd && x.rd >= LEGACY_CUTOFF) ? x.rd : (x.dd || x.rd || null);
+const onTime = x => x.st === "done" && !!x.dd && !!actualEnd(x) && actualEnd(x) <= x.dd;
+const NORM = { week: { tasks: 5, epics: 0 }, month: { tasks: 20, epics: 4 } };   // per person, per period
+// people = null → use the People filter; otherwise a Set of person keys (used for the per-person table)
+function periodStats(ps, pe, mode, people = null) {
+  const pOk = x => people ? people.has(personKey(x)) : personOk(x);
   const eps = D.epics.filter(blockOk);
-  const A = eps.filter(e => dueIn(e, ps, pe) && (personOk(e) || tasksOnly(e.k).some(personOk))).length;
-  const T = eps.flatMap(e => tasksOnly(e.k)).filter(t => personOk(t) && dueIn(t, ps, pe));
-  const done = T.filter(t => t.st === "done").length;
-  return { A, B: T.length, done, D: T.length ? done / T.length : null, E: T.length ? (T.length - done) / T.length : null };
+  const E = eps.filter(e => pOk(e) && dueIn(e, ps, pe));                       // epics belong to the epic's assignee
+  const T = eps.flatMap(e => tasksOnly(e.k)).filter(t => pOk(t) && dueIn(t, ps, pe));
+  const sel = people || ui.people;
+  const n = Math.max(1, TEAM.filter(p => sel.has(p.name)).length);              // score is per person → divide by people selected
+  const c = l => ({ n: l.length, done: l.filter(x => x.st === "done").length, onTime: l.filter(onTime).length });
+  const e = c(E), t = c(T), r = (a, b) => b ? a / b : null;
+  const nm = NORM[mode];
+  const score = mode === "week"
+    ? (t.n / (nm.tasks * n)) * (r(t.onTime, t.n) || 0) * 10
+    : 0.5 * (t.n / (nm.tasks * n)) * (r(t.onTime, t.n) || 0) * 10 + 0.5 * (e.n / (nm.epics * n)) * (r(e.onTime, e.n) || 0) * 10;
+  return {
+    A: e.n, eDone: e.done, eOnTime: e.onTime, eDoneR: r(e.done, e.n), eNotR: r(e.n - e.done, e.n), eOnR: r(e.onTime, e.n),
+    B: t.n, tDone: t.done, tOnTime: t.onTime, tDoneR: r(t.done, t.n), tNotR: r(t.n - t.done, t.n), tOnR: r(t.onTime, t.n),
+    score, people: n,
+  };
+}
+const scoreCls = s => s >= 8 ? "g" : s >= 5 ? "y" : "b";
+const scoreTxt = s => s.toFixed(1);
+const DISCLAIMER = `<div class="disc"><b>⚠️ The score does not measure an employee's real performance.</b> Tasks have no effort estimates, so the score only reflects how many planned items were closed on time.</div>`;
+const scoreFormula = mode => mode === "week"
+  ? "Week score = (tasks due ÷ 5 per person) × % tasks done on time × 10"
+  : "Month score = 50% × (tasks due ÷ 20 per person) × % tasks on time × 10 + 50% × (epics due ÷ 4 per person) × % epics on time × 10";
+function statsCards(s, mode, label) {
+  const card = (n, l, sub, cls = "") => `<div class="kpi ${cls}"><div class="n">${n}</div><div class="l">${l}</div><div class="s">${sub}</div></div>`;
+  const inv = r => r == null ? null : 1 - r;
+  return `<section class="stats">
+      ${card(s.A, "A · Epics ending in the period", label)}
+      ${card(pct(s.eDoneR), "Epics done", `${s.eDone} of ${s.A}`, `hl ${rateCls(s.eDoneR)}`)}
+      ${card(pct(s.eNotR), "Epics not done", `${s.A - s.eDone} of ${s.A}`, `hl ${rateCls(inv(s.eNotR))}`)}
+      ${card(pct(s.eOnR), "Epics done on time", `${s.eOnTime} of ${s.A}`, `hl ${rateCls(s.eOnR)}`)}
+    </section><section class="stats">
+      ${card(s.B, "B · Tasks ending in the period", label)}
+      ${card(pct(s.tDoneR), "Tasks done", `${s.tDone} of ${s.B}`, `hl ${rateCls(s.tDoneR)}`)}
+      ${card(pct(s.tNotR), "Tasks not done", `${s.B - s.tDone} of ${s.B}`, `hl ${rateCls(inv(s.tNotR))}`)}
+      ${card(pct(s.tOnR), "Tasks done on time", `${s.tOnTime} of ${s.B}`, `hl ${rateCls(s.tOnR)}`)}
+    </section>
+    <section class="score hl ${scoreCls(s.score)}"><div><div class="n">${scoreTxt(s.score)}</div><div class="l">Score${s.people > 1 ? ` · per person (÷ ${s.people} people)` : ""}</div></div>
+      <div class="sf">${scoreFormula(mode)}${DISCLAIMER}</div></section>`;
 }
 function periodsPage() {
   const [ps, pe] = periodRange(ui.perMode, ui.perAnchor);
   const ok = x => match(x) && (inRange(x, ps, pe) || isCarried(x, ps));
   const tree = buildTree(ok, ok);
-  const ctx = { name: "per", isOpen: k => !ui.perClosed.has(k), badge: x => isCarried(x, ps) ? `<span class="carry" title="Not done, end date ${fmt(x.dd)}">Carried over</span>` : "", subtasks: false };
+  const ctx = { name: "per", isOpen: k => ui.perOpen.has(k), badge: x => isCarried(x, ps) ? `<span class="carry" title="Not done, end date ${fmt(x.dd)}">Carried over</span>` : "", subtasks: false };
   const isCur = periodRange(ui.perMode, today)[0] === ps;
-  let stats = "";
-  if (ui.statsOpen) {
-    const s = periodStats(ps, pe);
-    const card = (n, l, sub, cls = "") => `<div class="kpi ${cls}"><div class="n">${n}</div><div class="l">${l}</div><div class="s">${sub}</div></div>`;
-    stats = `<section class="stats">
-      ${card(s.A, "A · Epics ending in the period", periodLabel(ui.perMode, ps, pe))}
-      ${card(s.B, "B · Tasks ending in the period", periodLabel(ui.perMode, ps, pe))}
-      ${card(pct(s.D), "D · Share of tasks done", `${s.done} of ${s.B}`, `hl ${rateCls(s.D)}`)}
-      ${card(pct(s.E), "E · Share of tasks not done", `${s.B - s.done} of ${s.B}`, `hl ${rateCls(s.E == null ? null : 1 - s.E)}`)}</section>`;
-  }
+  const stats = ui.statsOpen ? statsCards(periodStats(ps, pe, ui.perMode), ui.perMode, periodLabel(ui.perMode, ps, pe)) : "";
   return `<div class="toolbar">
       <div class="seg" data-k="perMode">${[["week", "Week"], ["month", "Month"]].map(([v, l]) => `<button data-v="${v}" class="${ui.perMode === v ? "on" : ""}">${l}</button>`).join("")}</div>
       <div class="pnav"><button class="navb" data-per="-1" title="Previous">‹</button><span class="plabel">${periodLabel(ui.perMode, ps, pe)}</span><button class="navb" data-per="1" title="Next">›</button></div>
@@ -556,34 +599,53 @@ function periodsPage() {
     <div class="toolbar">${filterBar(true)}</div>
     ${stats}
     ${listView(tree, ctx)}
-    <p class="note">Shown: epics and tasks whose start–end range overlaps the period (items without a start date count by their end date), plus all unfinished items with an end date before the period, marked <span class="carry">Carried over</span>.</p>`;
+    <p class="note">Shown: epics and tasks whose start–end range overlaps the period (items without a start date count by their end date), plus all unfinished items with an end date before the period, marked <span class="carry">Carried over</span>. Click an epic row to see its tasks. Statistics exclude carried-over items; “on time” = closed no later than the planned end date (items closed before ${fmt(LEGACY_CUTOFF)} count as closed on their planned date).</p>`;
 }
 
 // ===== Efficiency ==============================================================
 function effPage() {
-  const N = ui.effMode === "month" ? 6 : 12;
-  const lastAnchor = shiftAnchor(ui.effMode, today, ui.effOffset);
+  const mode = ui.effMode, N = mode === "month" ? 6 : 12;
+  const lastAnchor = shiftAnchor(mode, today, ui.effOffset);
   const periods = [];
-  for (let i = N - 1; i >= 0; i--) { const [ps, pe] = periodRange(ui.effMode, shiftAnchor(ui.effMode, lastAnchor, -i)); periods.push({ ps, pe, s: periodStats(ps, pe) }); }
-  const curPs = periodRange(ui.effMode, today)[0];
-  const th = periods.map(p => `<th class="${p.ps === curPs ? "cur" : ""}">${periodLabel(ui.effMode, p.ps, p.pe, true)}</th>`).join("");
-  const row = (l, f) => `<tr><td>${l}</td>${periods.map(p => f(p)).join("")}</tr>`;
+  for (let i = N - 1; i >= 0; i--) { const [ps, pe] = periodRange(mode, shiftAnchor(mode, lastAnchor, -i)); periods.push({ ps, pe, s: periodStats(ps, pe, mode) }); }
+  const curPs = periodRange(mode, today)[0];
+  const th = periods.map(p => `<th class="${p.ps === curPs ? "cur" : ""}">${periodLabel(mode, p.ps, p.pe, true)}</th>`).join("");
   const c = p => p.ps === curPs ? "cur" : "";
+  const row = (l, f, cls = "") => `<tr class="${cls}"><td>${l}</td>${periods.map(p => f(p)).join("")}</tr>`;
+  const num = k => p => `<td class="${c(p)}"><span class="v">${p.s[k]}</span></td>`;
+  const rate = (k, cnt, tot, inv) => p => { const r = p.s[k]; return `<td class="cell ${rateCls(r == null ? null : inv ? 1 - r : r)} ${c(p)}"><span class="v">${pct(r)}</span><span class="sub">${cnt(p.s)} of ${p.s[tot]}</span></td>`; };
+  const sc = s => `<td class="cell ${scoreCls(s.score)}"><span class="v">${scoreTxt(s.score)}</span></td>`;
+  const blockSel = TEAM.filter(p => allPeople() || ui.people.has(p.name));
+  const perPerson = blockSel.map(p => {
+    const ss = periods.map(pp => ({ pp, s: periodStats(pp.ps, pp.pe, mode, new Set([p.name])) }));
+    return `<tr><td><span style="display:inline-flex;gap:8px;align-items:center">${avHtml(p.name)} ${p.short}</span></td>${ss.map(({ pp, s }) => sc(s).replace('class="cell', `class="${c(pp)} cell`).replace("</td>", `<span class="sub">${s.tOnTime} T${mode === "month" ? ` · ${s.eOnTime} E` : ""} on time</span></td>`)).join("")}</tr>`;
+  }).join("");
   return `<div class="toolbar">
-      <div class="seg" data-k="effMode">${[["month", "Months (6)"], ["week", "Weeks (12)"]].map(([v, l]) => `<button data-v="${v}" class="${ui.effMode === v ? "on" : ""}">${l}</button>`).join("")}</div>
-      <div class="pnav"><button class="navb" data-eff="-1" title="Earlier">‹</button><span class="plabel">${periodLabel(ui.effMode, periods[0].ps, periods[0].pe, true)} – ${periodLabel(ui.effMode, periods[N - 1].ps, periods[N - 1].pe, true)}</span><button class="navb" data-eff="1" title="Later">›</button></div>
+      <div class="seg" data-k="effMode">${[["month", "Months (6)"], ["week", "Weeks (12)"]].map(([v, l]) => `<button data-v="${v}" class="${mode === v ? "on" : ""}">${l}</button>`).join("")}</div>
+      <div class="pnav"><button class="navb" data-eff="-1" title="Earlier">‹</button><span class="plabel">${periodLabel(mode, periods[0].ps, periods[0].pe, true)} – ${periodLabel(mode, periods[N - 1].ps, periods[N - 1].pe, true)}</span><button class="navb" data-eff="1" title="Later">›</button></div>
       ${ui.effOffset ? `<button class="btn ghost sm" data-eff="0">Current</button>` : ""}
     </div>
     <div class="toolbar">${filterBar(false)}</div>
     <div class="card eff"><table>
       <thead><tr><th>Metric</th>${th}</tr></thead>
       <tbody>
-        ${row("A · Epics ending in the period", p => `<td class="${c(p)}"><span class="v">${p.s.A}</span></td>`)}
-        ${row("B · Tasks ending in the period", p => `<td class="${c(p)}"><span class="v">${p.s.B}</span></td>`)}
-        ${row("D · Share of tasks done", p => `<td class="cell ${rateCls(p.s.D)} ${c(p)}"><span class="v">${pct(p.s.D)}</span><span class="sub">${p.s.done} of ${p.s.B}</span></td>`)}
-        ${row("E · Share of tasks not done", p => `<td class="cell ${rateCls(p.s.E == null ? null : 1 - p.s.E)} ${c(p)}"><span class="v">${pct(p.s.E)}</span><span class="sub">${p.s.B - p.s.done} of ${p.s.B}</span></td>`)}
+        ${row("A · Epics ending in the period", num("A"), "grp")}
+        ${row("Epics done", rate("eDoneR", s => s.eDone, "A"))}
+        ${row("Epics not done", rate("eNotR", s => s.A - s.eDone, "A", true))}
+        ${row("Epics done on time", rate("eOnR", s => s.eOnTime, "A"))}
+        ${row("B · Tasks ending in the period", num("B"), "grp")}
+        ${row("Tasks done", rate("tDoneR", s => s.tDone, "B"))}
+        ${row("Tasks not done", rate("tNotR", s => s.B - s.tDone, "B", true))}
+        ${row("Tasks done on time", rate("tOnR", s => s.tOnTime, "B"))}
+        ${row(`<b>Score</b>${periods[0].s.people > 1 ? ` <span class="muted">per person (÷ ${periods[0].s.people})</span>` : ""}`, p => sc(p.s).replace('class="cell', `class="${c(p)} cell`), "grp")}
       </tbody></table></div>
-    <p class="note">Done = status Done. B, D and E count tasks (not subtasks) with an end date inside the period. Colours: ≥80% green · 50–79% amber · &lt;50% red (inverted for “not done”). Arrows move the window by one period.</p>`;
+    <h2 class="h2">Score by person</h2>
+    <div class="card eff"><table>
+      <thead><tr><th>Person</th>${th}</tr></thead>
+      <tbody>${perPerson || `<tr><td colspan="${N + 1}" class="muted">Select people in the filter</td></tr>`}</tbody></table></div>
+    <div class="note">${scoreFormula(mode)}. Score colours: ≥8 green · 5–8 amber · &lt;5 red.</div>
+    ${DISCLAIMER}
+    <p class="note">Done = status Done. Counts use tasks (not subtasks) and epics with a planned end date inside the period; an epic counts for its own assignee. “On time” = closed (Jira resolution date) no later than the planned end date; items closed before ${fmt(LEGACY_CUTOFF)} count as closed on their planned date. Rate colours: ≥80% green · 50–79% amber · &lt;50% red (inverted for “not done”). Arrows move the window by one period.</p>`;
 }
 
 // ===== Writes ==================================================================
@@ -667,6 +729,7 @@ function renderDrawer() {
         <label>Assignee<select class="drAssignee" data-key="${it.k}">${peopleOptions(it.a)}</select></label>
         <label>Start date${dateIn(it, "sd")}</label>
         <label>End date${dateIn(it, "dd")}</label>
+        ${it.st === "done" ? `<label>Actual end date<div class="ro">${fmt(actualEnd(it))} · ${onTime(it) ? `<span style="color:var(--done);font-weight:600">on time</span>` : it.dd ? `<span class="due-late">late</span>` : "no planned date"}${it.rd && it.rd < LEGACY_CUTOFF ? ` <span class="muted" title="Closed before ${fmt(LEGACY_CUTOFF)}: actual = planned">(= plan)</span>` : ""}</div></label>` : ""}
       </div>
       <div class="dr-grid">
         ${isEpic ? `<label>Block<select class="drBlock" data-key="${it.k}">${blockOptions(it.b)}</select></label>
@@ -747,7 +810,7 @@ document.addEventListener("click", e => {
   if (t.closest("a, select, input, button, textarea")) return;
   const eh = t.closest(".ep-h");
   if (eh) { const ep = eh.parentElement, k = ep.dataset.ep;
-    if (ep.dataset.ctx === "per") ui.perClosed.has(k) ? ui.perClosed.delete(k) : ui.perClosed.add(k);
+    if (ep.dataset.ctx === "per") ui.perOpen.has(k) ? ui.perOpen.delete(k) : ui.perOpen.add(k);
     else ui.open.has(k) ? ui.open.delete(k) : ui.open.add(k);
     return render(); }
   const bh = t.closest(".blk-h"); if (bh) bh.parentElement.classList.toggle("collapsed");
