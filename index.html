@@ -8,117 +8,195 @@
   :root {
     --bg:#f6f5f1; --card:#fff; --ink:#1d1f24; --muted:#6b6f78; --line:#e4e2dc; --soft:#f0eee9;
     --done:#3f8f5a; --done-bg:#e3f1e7; --prog:#2f6fd6; --prog-bg:#e2ecfb; --todo:#8a8f99; --todo-bg:#eeeff1;
-    --late:#c2410c; --bad:#b42318; --bad-bg:#fde7e5;
+    --amber:#b45309; --amber-bg:#fdf1dc; --bad:#b42318; --bad-bg:#fde7e5;
     --accent:#1d1f24; --b1:#2f5aa8; --b2:#2f8a64; --b3:#c47a1c; --b4:#7a4fb0; --b5:#0e7490; --b0:#8a8f99;
+    --shadow:0 10px 30px rgba(20,20,30,.14);
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --bg:#15171b; --card:#1e2126; --ink:#ecedef; --muted:#9aa0aa; --line:#2c3037; --soft:#24272d;
     --done:#6cc28a; --done-bg:#1f3428; --prog:#7aa7f0; --prog-bg:#1d2a42; --todo:#a3a8b1; --todo-bg:#2a2d33;
-    --late:#f0a06a; --bad:#f2837a; --bad-bg:#3b1f1d;
-    --accent:#ecedef; --b1:#7aa0e8; --b2:#6cc29a; --b3:#e3a75a; --b4:#b294e0; --b5:#4fb8cf; --b0:#a3a8b1; } }
+    --amber:#f0b15a; --amber-bg:#3a2d17; --bad:#f2837a; --bad-bg:#3b1f1d;
+    --accent:#ecedef; --b1:#7aa0e8; --b2:#6cc29a; --b3:#e3a75a; --b4:#b294e0; --b5:#4fb8cf; --b0:#a3a8b1;
+    --shadow:0 10px 30px rgba(0,0,0,.5); } }
   * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
   body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
-  .wrap { max-width:1280px; margin:0 auto; padding:24px 16px 64px; }
+  .wrap { max-width:1320px; margin:0 auto; padding:24px 16px 64px; }
   header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
   h1 { font-size:24px; margin:0; letter-spacing:-.02em; }
-  nav.tabs { display:flex; gap:4px; background:var(--soft); padding:4px; border-radius:10px; }
+  nav.tabs { display:flex; gap:4px; background:var(--soft); padding:4px; border-radius:10px; flex-wrap:wrap; }
   nav.tabs a { padding:7px 14px; border-radius:7px; color:var(--muted); text-decoration:none; font-weight:600; }
   nav.tabs a.on { background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08); }
   .hbtns { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .stamp { color:var(--muted); font-size:12px; }
-  .btn { background:var(--accent); color:var(--bg); border:0; border-radius:8px; padding:8px 14px; font-weight:600; font-size:13px; cursor:pointer; }
+  .btn { background:var(--accent); color:var(--bg); border:0; border-radius:8px; padding:8px 14px; font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap; }
   .btn.ghost { background:var(--card); color:var(--ink); border:1px solid var(--line); }
+  .btn.sm { padding:5px 10px; font-size:12px; }
   .btn:disabled { opacity:.5; cursor:default; }
-  .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+  .lnk { background:none; border:0; color:var(--prog); cursor:pointer; font:inherit; font-size:13px; padding:4px 0; }
+  .muted { color:var(--muted); }
+  /* KPIs */
+  .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:12px; }
+  .kpis.last { margin-bottom:20px; }
   .kpi { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
-  .kpi .n { font-size:26px; font-weight:700; letter-spacing:-.02em; }
+  .kpi .n { font-size:26px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
   .kpi .l { color:var(--muted); font-size:12px; }
+  .kpi .s { color:var(--muted); font-size:11px; }
+  .kpi.hl { border-width:1px 1px 1px 5px; }
+  .kpi.hl.g { background:var(--done-bg); border-color:var(--done); } .kpi.hl.g .n { color:var(--done); }
+  .kpi.hl.y { background:var(--amber-bg); border-color:var(--amber); } .kpi.hl.y .n { color:var(--amber); }
+  .kpi.hl.b { background:var(--bad-bg); border-color:var(--bad); } .kpi.hl.b .n { color:var(--bad); }
+  .kpi.hl.na { background:var(--soft); border-color:var(--line); }
+  /* toolbar + filters */
   .toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
+  .toolbar .sp { flex:1; }
   .seg { display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--card); }
   .seg button { border:0; background:none; color:var(--muted); padding:6px 12px; font-size:13px; cursor:pointer; }
   .seg button.on { background:var(--accent); color:var(--bg); }
   select { font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; }
   .flt { display:flex; gap:6px; align-items:center; color:var(--muted); font-size:13px; }
+  .ms { position:relative; }
+  .ms-btn { font:inherit; font-size:13px; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; white-space:nowrap; }
+  .ms-btn .lab { color:var(--muted); }
+  .ms-pop { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:30; min-width:220px; background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); padding:6px; }
+  .ms.open .ms-pop { display:block; }
+  .ms-act { display:flex; justify-content:space-between; padding:4px 6px 6px; border-bottom:1px solid var(--line); margin-bottom:4px; }
+  .ms-opt { display:flex; align-items:center; gap:8px; padding:6px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--ink); }
+  .ms-opt:hover { background:var(--soft); }
+  .ms-opt input { width:auto; margin:0; }
   .pill { font-size:11px; font-weight:600; padding:1px 8px; border-radius:999px; white-space:nowrap; }
   .s-done { color:var(--done); background:var(--done-bg); } .s-prog { color:var(--prog); background:var(--prog-bg); } .s-todo { color:var(--todo); background:var(--todo-bg); }
+  .carry { font-size:10px; font-weight:700; color:var(--amber); background:var(--amber-bg); padding:1px 7px; border-radius:999px; margin-left:6px; white-space:nowrap; vertical-align:1px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:16px; }
   a.k { color:var(--muted); text-decoration:none; font-variant-numeric:tabular-nums; font-size:12px; white-space:nowrap; }
   a.k:hover { color:var(--ink); text-decoration:underline; }
-  .muted { color:var(--muted); }
   .bar { display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--todo-bg); }
+  /* avatars */
   .av { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%;
     font-size:10px; font-weight:700; color:#fff; background:var(--c,#8a8f99); flex:none; letter-spacing:.02em; }
-  .av.none { background:transparent; border:1px dashed var(--line); color:var(--muted); }
-  .avs { display:flex; } .avs .av { margin-left:-6px; box-shadow:0 0 0 2px var(--card); } .avs .av:first-child { margin-left:0; }
-  .people { display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--muted); margin:-4px 0 14px; }
-  .people span { display:inline-flex; gap:6px; align-items:center; }
+  .av.none { background:transparent; border:1px dashed var(--muted); color:var(--muted); }
+  .avb { border:0; background:none; padding:0; cursor:pointer; border-radius:50%; display:inline-flex; }
+  .avb:hover .av { box-shadow:0 0 0 2px var(--prog); }
+  .pop { position:absolute; z-index:60; background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); padding:6px; min-width:170px; }
+  .pop button { display:flex; width:100%; align-items:center; gap:8px; border:0; background:none; color:var(--ink); font:inherit; font-size:13px; padding:6px 8px; border-radius:6px; cursor:pointer; text-align:left; }
+  .pop button:hover, .pop button.cur { background:var(--soft); }
+  /* inline editors */
+  .stsel { appearance:none; -webkit-appearance:none; font:inherit; font-size:11px; font-weight:600; border:0; border-radius:999px;
+    padding:2px 20px 2px 9px; cursor:pointer; justify-self:start; max-width:118px;
+    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+    background-position:calc(100% - 10px) 52%,calc(100% - 6px) 52%; background-size:4px 4px; background-repeat:no-repeat; }
+  .stsel.s-done { background-color:var(--done-bg); } .stsel.s-prog { background-color:var(--prog-bg); } .stsel.s-todo { background-color:var(--todo-bg); }
+  .dt { font:inherit; font-size:12px; color:var(--muted); background:transparent; border:1px solid transparent; border-radius:6px; padding:2px 4px; width:100%; min-width:0; }
+  .dt:hover, .dt:focus { border-color:var(--line); background:var(--card); color:var(--ink); }
+  .dt.late { color:var(--bad); font-weight:600; }
+  .dt:disabled, .stsel:disabled { opacity:.6; cursor:wait; }
   /* list view */
   .blk-h { padding:14px 16px; border-left:5px solid var(--bc); display:flex; justify-content:space-between; gap:16px; align-items:center; cursor:pointer; }
   .blk-h h2 { margin:0; font-size:17px; } .blk-h .meta { color:var(--muted); font-size:12px; }
+  .collapsed .sg, .collapsed .cols { display:none; }
   .sg { padding:2px 16px 10px 21px; }
   .sg h3 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:12px 0 4px; }
+  .cols, .ep-h, .tr { display:grid; grid-template-columns:18px 112px minmax(0,1fr) 30px 118px 108px 108px 120px; gap:10px; align-items:center; }
+  .cols { padding:6px 16px 4px 21px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--line); }
   .ep { border-top:1px solid var(--line); }
-  .ep-h { display:grid; grid-template-columns:18px 112px 1fr 92px 130px 150px 96px; gap:10px; align-items:center; padding:8px 0; cursor:pointer; }
-  .ep-tasks { display:none; padding:0 0 8px 28px; } .ep.open .ep-tasks { display:block; }
+  .ep-h { padding:7px 0; cursor:pointer; }
+  .ttl { cursor:pointer; overflow:hidden; } .ttl:hover { text-decoration:underline; text-decoration-color:var(--muted); }
+  .ep-h .ttl { font-weight:600; }
+  .ep-tasks { display:none; padding:0 0 8px; } .ep.open .ep-tasks { display:block; }
   .ep.open .car { transform:rotate(90deg); }
-  .car { display:inline-block; color:var(--muted); transition:transform .15s; }
-  .tr { display:grid; grid-template-columns:112px 1fr 28px 80px 96px; gap:10px; align-items:center; padding:4px 0; font-size:13px; border-top:1px dashed var(--line); }
-  .tr.sub { padding-left:18px; grid-template-columns:94px 1fr 28px 80px 96px; }
+  .car { display:inline-block; color:var(--muted); transition:transform .15s; text-align:center; }
+  .tr { padding:3px 0; font-size:13px; border-top:1px dashed var(--line); }
+  .tr.sub .ttl::before { content:"↳ "; color:var(--muted); }
+  .tr.sub { color:var(--muted); }
+  .tr.add { border-top:1px dashed var(--line); }
   .due-late { color:var(--bad); font-weight:600; }
-  .collapsed .sg { display:none; }
+  .empty { padding:24px; color:var(--muted); text-align:center; }
   /* backlog */
-  .bl { display:grid; grid-template-columns:112px 1fr 28px 80px 96px; gap:12px; align-items:center; padding:10px 16px; border-top:1px solid var(--line); }
+  .bl { display:grid; grid-template-columns:112px minmax(0,1fr) 30px 108px 120px; gap:12px; align-items:center; padding:9px 16px; border-top:1px solid var(--line); }
   .bl:first-child { border-top:0; }
+  /* periods */
+  .pnav { display:flex; align-items:center; gap:6px; }
+  .pnav .plabel { font-weight:700; min-width:230px; text-align:center; font-size:15px; }
+  .navb { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
   /* gantt */
   .gantt { position:relative; overflow:auto; max-height:75vh; }
-  .g-grid { display:grid; grid-template-columns:360px auto; min-width:max-content; }
+  .g-grid { display:grid; grid-template-columns:380px auto; min-width:max-content; }
   .g-left, .g-head-l { position:sticky; left:0; background:var(--card); z-index:2; border-right:1px solid var(--line); }
   .g-head-l, .g-head-r { position:sticky; top:0; z-index:3; background:var(--card); border-bottom:1px solid var(--line); height:44px; }
   .g-head-l { z-index:4; padding:12px; font-weight:600; }
   .g-month { position:absolute; top:0; height:44px; border-left:1px solid var(--line); padding:4px 6px; font-size:12px; color:var(--muted); white-space:nowrap; }
   .g-row { height:32px; display:flex; align-items:center; gap:8px; padding:0 10px; border-bottom:1px solid var(--soft); white-space:nowrap; overflow:hidden; font-size:13px; }
   .g-row .av { width:20px; height:20px; font-size:9px; margin-left:auto; }
-  .g-row.blk { background:var(--soft); font-weight:700; } .g-row.ep { cursor:pointer; font-weight:600; }
-  .g-row.task { padding-left:34px; } .g-row.task.sub { padding-left:52px; color:var(--muted); }
+  .g-row.blk { background:var(--soft); font-weight:700; } .g-row.ep { font-weight:600; }
+  .g-row.task { padding-left:34px; }
   .g-row .ttl { overflow:hidden; text-overflow:ellipsis; }
   .g-lane { position:relative; height:32px; border-bottom:1px solid var(--soft); }
   .g-lane.blk { background:var(--soft); }
-  .g-bar { position:absolute; top:8px; height:16px; border-radius:4px; min-width:4px; }
+  .g-bar { position:absolute; top:8px; height:16px; border-radius:4px; min-width:4px; cursor:pointer; }
   .g-bar.ep { top:7px; height:18px; }
   .g-bar.done { background:var(--done); } .g-bar.prog { background:var(--prog); } .g-bar.todo { background:var(--todo); opacity:.75; }
   .g-bar.overdue { box-shadow:0 0 0 2px var(--bad) inset; }
-  .g-dia { position:absolute; top:10px; width:12px; height:12px; transform:rotate(45deg); margin-left:-6px; }
+  .g-dia { position:absolute; top:10px; width:12px; height:12px; transform:rotate(45deg); margin-left:-6px; cursor:pointer; }
   .g-dia.done { background:var(--done); } .g-dia.prog { background:var(--prog); } .g-dia.todo { background:var(--todo); }
   .g-today { position:absolute; top:0; bottom:0; width:2px; background:var(--bad); z-index:1; pointer-events:none; }
   .g-mline { position:absolute; top:0; bottom:0; width:1px; background:var(--soft); pointer-events:none; }
   .legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin:8px 0 0; }
   .sw { display:inline-block; width:12px; height:8px; border-radius:2px; margin-right:5px; vertical-align:0; }
-  /* report (hidden for now) */
-  table { width:100%; border-collapse:collapse; }
-  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
-  th { font-size:12px; color:var(--muted); font-weight:600; background:var(--soft); }
-  td.r, th.r { text-align:right; }
-  .rate { font-weight:700; } .rate.g { color:var(--done); } .rate.y { color:var(--late); } .rate.b { color:var(--bad); }
-  .note { color:var(--muted); font-size:12px; padding:10px 14px; }
-  .h2 { font-size:16px; margin:22px 0 10px; }
+  /* efficiency table */
+  .eff { overflow-x:auto; }
+  .eff table { width:100%; border-collapse:collapse; min-width:700px; }
+  .eff th, .eff td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:center; font-variant-numeric:tabular-nums; }
+  .eff th { font-size:12px; color:var(--muted); font-weight:600; background:var(--soft); white-space:nowrap; }
+  .eff th.cur { color:var(--ink); background:var(--prog-bg); }
+  .eff td.cur { box-shadow:inset 2px 0 0 var(--prog), inset -2px 0 0 var(--prog); }
+  .eff td:first-child, .eff th:first-child { text-align:left; white-space:nowrap; }
+  .eff .v { font-weight:700; font-size:15px; }
+  .eff .sub { display:block; font-size:11px; color:var(--muted); font-weight:400; }
+  .cell.g { background:var(--done-bg); color:var(--done); } .cell.y { background:var(--amber-bg); color:var(--amber); } .cell.b { background:var(--bad-bg); color:var(--bad); }
+  .note { color:var(--muted); font-size:12px; margin:10px 2px; }
+  /* drawer */
+  .scrim { position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:40; }
+  .drawer { position:fixed; top:0; right:0; bottom:0; width:min(520px,100vw); background:var(--card); z-index:41; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; border-left:1px solid var(--line); }
+  .dr-h { display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--line); }
+  .dr-h .x { margin-left:auto; border:0; background:none; font-size:22px; line-height:1; cursor:pointer; color:var(--muted); }
+  .dr-b { padding:16px 18px 24px; overflow:auto; display:grid; gap:14px; align-content:start; }
+  .dr-b label { font-size:12px; color:var(--muted); display:grid; gap:4px; }
+  .dr-b input, .dr-b textarea, .dr-b select { font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px 10px; width:100%; }
+  .dr-b input.title { font-size:18px; font-weight:700; }
+  .dr-b textarea { min-height:160px; resize:vertical; }
+  .dr-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ro { padding:8px 10px; border-radius:8px; background:var(--soft); color:var(--ink); font-size:14px; }
+  .crumb { font-size:13px; color:var(--muted); }
+  .dr-tasks { border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .dr-b select.stsel { border:0; border-radius:8px; padding:8px 28px 8px 12px; font-size:13px; max-width:none; width:100%; justify-self:stretch;
+    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+    background-position:calc(100% - 14px) 52%,calc(100% - 10px) 52%; background-size:4px 4px; background-repeat:no-repeat; }
+  .dr-b select.stsel.s-done { background-color:var(--done-bg); } .dr-b select.stsel.s-prog { background-color:var(--prog-bg); } .dr-b select.stsel.s-todo { background-color:var(--todo-bg); }
+  .dr-tasks .row { display:grid; grid-template-columns:112px minmax(0,1fr) 26px 64px 90px; gap:8px; align-items:center; padding:7px 10px; border-top:1px solid var(--line); font-size:13px; }
+  .dr-tasks .row:first-child { border-top:0; }
+  .dr-sec { font-size:13px; font-weight:700; margin:4px 0 -6px; display:flex; justify-content:space-between; align-items:center; }
   /* dialog */
   dialog { border:1px solid var(--line); border-radius:14px; padding:0; width:min(520px,calc(100% - 32px)); background:var(--card); color:var(--ink); }
   dialog::backdrop { background:rgba(0,0,0,.4); }
   form { padding:20px; display:grid; gap:12px; } form h2 { margin:0; font-size:18px; }
-  label { font-size:13px; color:var(--muted); display:grid; gap:4px; }
-  input, textarea, form select { font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 10px; width:100%; }
-  textarea { min-height:100px; resize:vertical; }
+  form label { font-size:13px; color:var(--muted); display:grid; gap:4px; }
+  form input, form textarea, form select { font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 10px; width:100%; }
+  form textarea { min-height:100px; resize:vertical; }
   .row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .actions { display:flex; justify-content:flex-end; gap:8px; }
   .msg { font-size:13px; padding:8px 10px; border-radius:8px; display:none; }
   .msg.ok { display:block; color:var(--done); background:var(--done-bg); } .msg.err { display:block; color:var(--bad); background:var(--bad-bg); }
   .hp { position:absolute; left:-9999px; }
-  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:13px; display:none; z-index:50; max-width:90vw; }
-  @media (max-width:820px) {
-    .kpis { grid-template-columns:repeat(2,1fr); }
-    .ep-h { grid-template-columns:18px 1fr 28px 96px; } .hide-s { display:none !important; }
-    .tr, .tr.sub, .bl { grid-template-columns:1fr 28px 96px; }
-    .g-grid { grid-template-columns:200px auto; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:13px; display:none; z-index:70; max-width:90vw; }
+  @media (max-width:900px) {
+    .kpis { grid-template-columns:repeat(2,1fr); } .stats { grid-template-columns:repeat(2,1fr); }
+    .cols { display:none; }
+    .ep-h, .tr { grid-template-columns:18px minmax(0,1fr) 30px 120px; } .hide-s { display:none !important; }
+    .bl { grid-template-columns:minmax(0,1fr) 30px 120px; }
+    .g-grid { grid-template-columns:220px auto; }
+    .pnav .plabel { min-width:0; }
   }
 </style>
 </head>
@@ -135,6 +213,9 @@
   </header>
   <main id="app"><p class="muted">Loading…</p></main>
 </div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden></aside>
+<div class="pop" id="pop" hidden></div>
 
 <dialog id="ideaDlg">
   <form id="ideaForm" novalidate>
@@ -156,181 +237,254 @@
 
 <script>
 // ===== Config ==================================================================
-// URL of the Cloudflare Worker (see README). Empty = only the data.json snapshot.
 const WORKER_URL = "https://projects-management.kostya-508.workers.dev";
-const SHOW_REPORT = false;           // efficiency report page is hidden for now
 const JIRA = "https://goldmans.atlassian.net/browse/";
 const BACKLOG_EPIC = "GOLDMANS-1075";
 const BLOCK_ORDER = ["Digital transformation", "Process managment", "Developing sales effectiveness", "Development of hiring", "Development of onboarding and training"];
-const BLOCK_COLOR = { "Digital transformation": "var(--b1)", "Developing sales effectiveness": "var(--b2)", "Development of hiring": "var(--b3)", "Development of onboarding and training": "var(--b4)", "Process managment": "var(--b5)" };
-const NO_BLOCK = "No block";
-const ST = { done: "Done", prog: "In progress", todo: "To do" };
-// Jira name → short name, initials, avatar colour
-const PEOPLE = {
-  "Ilya Goldman": ["Ilya", "IG", "#c2410c"], "Konstantin Lipskii": ["Kostya", "KL", "#2f5aa8"],
-  "Elizaveta Gurdzhi": ["Liza", "LG", "#2f8a64"], "Mark Shcherbakov": ["Mark", "MS", "#7a4fb0"],
-  "Misha Pankov": ["Misha", "MP", "#b0306a"], "Iurii Bordok": ["Iurii", "IB", "#0e7490"],
-};
+const BLOCK_COLOR = { "Digital transformation": "var(--b1)", "Process managment": "var(--b5)", "Developing sales effectiveness": "var(--b2)", "Development of hiring": "var(--b3)", "Development of onboarding and training": "var(--b4)" };
+// Fallback for the "Блок" options when the Worker does not return meta
+const BLOCKS_FALLBACK = [
+  { id: "10245", name: "Digital transformation", children: [{ id: "10249", name: "Data model development" }, { id: "10250", name: "IT systems and metrics" }] },
+  { id: "10254", name: "Process managment", children: [] },
+  { id: "10246", name: "Developing sales effectiveness", children: [{ id: "10251", name: "PDQ" }, { id: "10252", name: "Funding" }, { id: "10253", name: "Additional sales" }] },
+  { id: "10247", name: "Development of hiring", children: [] },
+  { id: "10248", name: "Development of onboarding and training", children: [] },
+];
+const ST = { todo: "To do", prog: "In progress", done: "Done" };
+const TEAM = [
+  { name: "Ilya Goldman", short: "Ilya", ini: "IG", c: "#c2410c" },
+  { name: "Konstantin Lipskii", short: "Kostya", ini: "KL", c: "#2f5aa8" },
+  { name: "Elizaveta Gurdzhi", short: "Liza", ini: "LG", c: "#2f8a64" },
+  { name: "Mark Shcherbakov", short: "Mark", ini: "MS", c: "#7a4fb0" },
+  { name: "Misha Pankov", short: "Misha", ini: "MP", c: "#b0306a" },
+];
+const TEAM_BY = Object.fromEntries(TEAM.map(p => [p.name, p]));
+const NONE = "__none";
+const PEOPLE_OPTS = [...TEAM.map(p => p.name), NONE];
+const STATUS_OPTS = ["todo", "prog", "done"];
+
+// ===== Helpers =================================================================
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const today = iso(new Date());
+const fmt = d => d ? parse(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" }) : "—";
+const fmtS = d => parse(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const key = k => `<a class="k" href="${JIRA}${k}" target="_blank" rel="noopener">${k}</a>`;
+const num = k => +String(k).split("-")[1];
+const byDue = (a, b) => (a.dd || "9999-12-31").localeCompare(b.dd || "9999-12-31") || num(a.k) - num(b.k);
+const overdue = x => x.st !== "done" && x.dd && x.dd < today;
+const pct = r => r == null ? "—" : Math.round(r * 100) + "%";
+const rateCls = r => r == null ? "na" : r >= .8 ? "g" : r >= .5 ? "y" : "b";
+function toast(t, ms = 3500) { const el = $("toast"); el.textContent = t; el.style.display = "block"; clearTimeout(el._t); el._t = setTimeout(() => el.style.display = "none", ms); }
+function person(n) {
+  if (!n) return null;
+  const p = TEAM_BY[n]; if (p) return { ...p, full: n };
+  const parts = n.split(/\s+/); return { short: parts[0], ini: (parts[0][0] + (parts[1] || "")[0]).toUpperCase(), c: "#6b6f78", full: n };
+}
+const avHtml = n => { const p = person(n); return p ? `<span class="av" style="--c:${p.c}">${esc(p.ini)}</span>` : `<span class="av none">–</span>`; };
+const avBtn = x => `<button class="avb" data-assign="${x.k}" title="${esc(x.a || "Unassigned")} · click to change">${avHtml(x.a)}</button>`;
+const stSel = x => `<select class="stsel s-${x.st}" data-key="${x.k}" title="Status">${STATUS_OPTS.map(v => `<option value="${v}" ${v === x.st ? "selected" : ""}>${ST[v]}</option>`).join("")}</select>`;
+const dateIn = (x, f) => `<input type="date" class="dt ${f === "dd" && overdue(x) ? "late" : ""}" data-key="${x.k}" data-f="${f}" value="${x[f] || ""}" title="${f === "sd" ? "Start date" : "End date"}">`;
 
 // ===== State ===================================================================
 let D = null;
-const ui = { view: "list", status: "all", zoom: "month", block: "all", sub: "all", open: new Set(), gOpen: new Set(), rBlock: "all" };
-const today = new Date().toISOString().slice(0, 10);
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const fmt = d => d ? new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" }) : "—";
-const key = k => `<a class="k" href="${JIRA}${k}" target="_blank" rel="noopener">${k}</a>`;
-const num = k => +k.split("-")[1];
-function person(n) {
-  if (!n) return null;
-  const p = PEOPLE[n]; if (p) return { short: p[0], ini: p[1], color: p[2], full: n };
-  const parts = n.split(/\s+/); return { short: parts[0], ini: (parts[0][0] + (parts[1] || "")[0]).toUpperCase(), color: "#6b6f78", full: n };
-}
-function av(n) { const p = person(n); return p ? `<span class="av" style="--c:${p.color}" title="${esc(p.full)}">${esc(p.ini)}</span>` : `<span class="av none" title="Unassigned">–</span>`; }
-function toast(t, ms = 3500) { const el = $("toast"); el.textContent = t; el.style.display = "block"; clearTimeout(el._t); el._t = setTimeout(() => el.style.display = "none", ms); }
+const ui = {
+  format: "list", zoom: "month", block: "all", sub: "all",
+  people: new Set(PEOPLE_OPTS), statuses: new Set(STATUS_OPTS), ms: null,
+  open: new Set(), gOpen: new Set(), perClosed: new Set(),
+  perMode: "week", perAnchor: today, statsOpen: false,
+  effMode: "month", effOffset: 0,
+  drawer: null, draft: null,
+};
 
 // ===== Data ====================================================================
 async function load(fromWorker) {
-  const url = fromWorker ? WORKER_URL.replace(/\/$/, "") + "/data" : "data.json?t=" + Date.now();
+  const url = fromWorker ? WORKER_URL + "/data" : "data.json?t=" + Date.now();
   const r = await fetch(url, { cache: "no-store" });
   if (!r.ok) throw new Error("HTTP " + r.status);
-  D = await r.json(); index(); render();
+  const j = await r.json(); if (j.error) throw new Error(j.error);
+  const detail = D?.detail || {};
+  D = j; D.detail = detail; index(); render();
 }
 function index() {
   D.byParent = {}; D.epicByKey = {}; D.issueByKey = {};
   for (const e of D.epics) D.epicByKey[e.k] = e;
   for (const i of D.issues) { D.issueByKey[i.k] = i; (D.byParent[i.p || "_none"] ||= []).push(i); }
-  for (const l of Object.values(D.byParent)) l.sort((a, b) => num(a.k) - num(b.k));
-  const ord = { done: 0, prog: 1, todo: 2 };
-  D.blocks = [...BLOCK_ORDER, NO_BLOCK].map(b => {
-    const eps = D.epics.filter(e => e.k !== BACKLOG_EPIC && (e.b || NO_BLOCK) === b).sort((x, y) => ord[x.st] - ord[y.st] || num(x.k) - num(y.k));
-    const subs = []; for (const e of eps) { let s = subs.find(x => x.name === (e.g || "")); if (!s) subs.push(s = { name: e.g || "", epics: [] }); s.epics.push(e); }
-    return { name: b, color: BLOCK_COLOR[b] || "var(--b0)", subs };
-  }).filter(b => b.subs.length);
+  D.blocksMeta = D.meta?.blocks?.length ? D.meta.blocks : BLOCKS_FALLBACK;
+  D.userIds = {};
+  for (const x of [...D.epics, ...D.issues]) if (x.a && x.aid) D.userIds[x.a] = x.aid;
+  for (const u of D.meta?.users || []) D.userIds[u.name] = u.id;
   $("stamp").textContent = "Data as of " + new Date(D.generated).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
-const tasksOf = k => D.byParent[k] || [];
-const allUnder = k => tasksOf(k).flatMap(t => [t, ...tasksOf(t.k)]);
-const count = l => l.reduce((a, x) => (a[x.st]++, a), { done: 0, prog: 0, todo: 0 });
-const bar = c => { const t = c.done + c.prog + c.todo || 1;
-  return `<div class="bar"><span style="width:${c.done / t * 100}%;background:var(--done)"></span><span style="width:${c.prog / t * 100}%;background:var(--prog)"></span></div>`; };
-const overdue = x => x.st !== "done" && x.dd && x.dd < today;
-function peopleOf(list) { const m = new Map(); for (const x of list) if (x.a) m.set(x.a, (m.get(x.a) || 0) + 1); return [...m].sort((a, b) => b[1] - a[1]).map(([n]) => n); }
-const avs = (names, max = 3) => `<span class="avs">${names.slice(0, max).map(av).join("")}${names.length > max ? `<span class="av none" title="${esc(names.slice(max).join(", "))}">+${names.length - max}</span>` : ""}</span>`;
+const item = k => D.epicByKey[k] || D.issueByKey[k];
+const tasksOnly = k => (D.byParent[k] || []).filter(t => t.t !== "sub");
+const subsOf = k => (D.byParent[k] || []).filter(t => t.t === "sub");
+function blockNames() {
+  const names = D.blocksMeta.map(b => b.name).sort((a, b) => (BLOCK_ORDER.indexOf(a) + 99) % 99 - (BLOCK_ORDER.indexOf(b) + 99) % 99);
+  for (const e of D.epics) if (e.b && !names.includes(e.b)) names.push(e.b);
+  return names;
+}
+function subNames(b) {
+  const m = D.blocksMeta.find(x => x.name === b), names = (m?.children || []).map(c => c.name);
+  for (const e of D.epics) if (e.b === b && e.g && !names.includes(e.g)) names.push(e.g);
+  return [...names, ""];
+}
+
+// ===== Filters =================================================================
+const allPeople = () => PEOPLE_OPTS.every(p => ui.people.has(p));
+const personKey = x => x.a ? (TEAM_BY[x.a] ? x.a : "__other") : NONE;
+const personOk = x => allPeople() || ui.people.has(personKey(x));
+const statusOk = x => ui.statuses.has(x.st);
+const match = x => personOk(x) && statusOk(x);
+const blockOk = e => !!e.b && e.k !== BACKLOG_EPIC && (ui.block === "all" || e.b === ui.block) && (ui.sub === "all" || (e.g || "") === ui.sub);
+
+// tree: blocks → subgroups → epics (+ their visible tasks), everything sorted by end date
+function buildTree(taskOk, epicOk) {
+  const out = [];
+  for (const b of blockNames()) {
+    const subs = [];
+    for (const g of subNames(b)) {
+      const epics = D.epics.filter(e => blockOk(e) && e.b === b && (e.g || "") === g)
+        .map(e => ({ e, tasks: tasksOnly(e.k).filter(taskOk).sort(byDue) }))
+        .filter(x => epicOk(x.e) || x.tasks.length).sort((x, y) => byDue(x.e, y.e));
+      if (epics.length) subs.push({ name: g, epics });
+    }
+    if (subs.length) out.push({ name: b, color: BLOCK_COLOR[b] || "var(--b0)", subs });
+  }
+  return out;
+}
+
+function msel(id, label, opts, set) {
+  const n = set.size, all = n === opts.length;
+  const one = n === 1 ? opts.find(o => set.has(o[0]))[2] : "";
+  const summary = all ? "All" : n === 0 ? "None" : n === 1 ? one : `${n} selected`;
+  return `<div class="ms ${ui.ms === id ? "open" : ""}" data-ms="${id}">
+    <button class="ms-btn" data-ms-toggle="${id}"><span class="lab">${label}:</span> <b>${esc(summary)}</b> ▾</button>
+    <div class="ms-pop"><div class="ms-act"><button class="lnk" data-ms-all="${id}">Select all</button><button class="lnk" data-ms-clear="${id}">Clear</button></div>
+      ${opts.map(([v, html]) => `<label class="ms-opt"><input type="checkbox" data-ms-opt="${id}" value="${v}" ${set.has(v) ? "checked" : ""}>${html}</label>`).join("")}</div></div>`;
+}
+const PEOPLE_MS = () => [...TEAM.map(p => [p.name, `${avHtml(p.name)} ${p.short}`, p.short]), [NONE, `${avHtml(null)} Unassigned`, "Unassigned"]];
+const STATUS_MS = () => STATUS_OPTS.map(s => [s, `<span class="pill s-${s}">${ST[s]}</span>`, ST[s]]);
+function filterBar(withStatus = true) {
+  const subs = ui.block === "all" ? [] : subNames(ui.block).filter(Boolean);
+  return `<label class="flt">Block <select id="fBlock"><option value="all">All blocks</option>${blockNames().map(b => `<option ${ui.block === b ? "selected" : ""}>${esc(b)}</option>`).join("")}</select></label>
+    <label class="flt">Subgroup <select id="fSub" ${subs.length ? "" : "disabled"}><option value="all">All subgroups</option>${subs.map(s => `<option ${ui.sub === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select></label>
+    ${msel("people", "People", PEOPLE_MS(), ui.people)}
+    ${withStatus ? msel("status", "Status", STATUS_MS(), ui.statuses) : ""}`;
+}
 
 // ===== Router ==================================================================
-const PAGES = [["plan", "Plan"], ["backlog", "Backlog"], ...(SHOW_REPORT ? [["report", "Efficiency report"]] : [])];
+const PAGES = [["plan", "Plan"], ["backlog", "Backlog"], ["periods", "Periods"], ["efficiency", "Efficiency"]];
 function render() {
   if (!D) return;
   let page = location.hash.slice(1); if (!PAGES.some(p => p[0] === page)) page = "plan";
   $("tabs").innerHTML = PAGES.map(([k, l]) => `<a href="#${k}" class="${k === page ? "on" : ""}">${l}</a>`).join("");
   const g = document.querySelector(".gantt"), keep = g ? [g.scrollLeft, g.scrollTop] : null;
-  $("app").innerHTML = page === "backlog" ? backlogPage() : page === "report" ? reportPage() : planPage();
+  $("app").innerHTML = page === "backlog" ? backlogPage() : page === "periods" ? periodsPage() : page === "efficiency" ? effPage() : planPage();
   const ng = document.querySelector(".gantt");
   if (ng) { if (keep && ui.zoom === ui._z) [ng.scrollLeft, ng.scrollTop] = keep;
-    else { const t = ng.querySelector(".g-today"); ng.scrollLeft = Math.max(0, t.offsetLeft - 300); } ui._z = ui.zoom; }
+    else { const t = ng.querySelector(".g-today"); if (t) ng.scrollLeft = Math.max(0, t.offsetLeft - 300); } ui._z = ui.zoom; }
+  renderDrawer();
 }
-addEventListener("hashchange", render);
+addEventListener("hashchange", () => { ui.ms = null; render(); });
 
-// ===== Plan page ===============================================================
-function visibleBlocks() {
-  return D.blocks.filter(b => ui.block === "all" || b.name === ui.block)
-    .map(b => ({ ...b, subs: b.subs.filter(s => ui.sub === "all" || s.name === ui.sub)
-      .map(s => ({ ...s, epics: s.epics.filter(e => ui.status === "all" || e.st === ui.status) })).filter(s => s.epics.length) }))
-    .filter(b => b.subs.length);
-}
-function planPage() {
-  const vb = visibleBlocks(), eps = vb.flatMap(b => b.subs.flatMap(s => s.epics)), c = count(eps);
-  const tasks = eps.flatMap(e => allUnder(e.k)), tc = count(tasks);
-  const subOpts = ui.block === "all" ? [] : (D.blocks.find(b => b.name === ui.block)?.subs || []).map(s => s.name).filter(Boolean);
-  const team = peopleOf([...eps, ...tasks]);
-  return `<section class="kpis">
-      ${[[eps.length, "Projects"], [c.done, "Done"], [c.prog, "In progress"], [c.todo, "To do"], [tasks.length, `Tasks · ${tc.done} done`]]
-        .map(([n, l]) => `<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("")}</section>
-    <div class="toolbar">
-      <div class="seg" data-k="view">${[["list", "List"], ["gantt", "Gantt"]].map(([v, l]) => `<button data-v="${v}" class="${ui.view === v ? "on" : ""}">${l}</button>`).join("")}</div>
-      <label class="flt">Block <select id="fBlock"><option value="all">All blocks</option>${D.blocks.map(b => `<option ${ui.block === b.name ? "selected" : ""}>${esc(b.name)}</option>`).join("")}</select></label>
-      <label class="flt">Subgroup <select id="fSub" ${subOpts.length ? "" : "disabled"}><option value="all">All subgroups</option>${subOpts.map(s => `<option ${ui.sub === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select></label>
-      <div class="seg" data-k="status">${[["all", "All"], ["prog", "In progress"], ["todo", "To do"], ["done", "Done"]].map(([v, l]) => `<button data-v="${v}" class="${ui.status === v ? "on" : ""}">${l}</button>`).join("")}</div>
-      ${ui.view === "gantt" ? `<div class="seg" data-k="zoom">${[["week", "Weeks"], ["month", "Months"], ["quarter", "Quarters"]].map(([v, l]) => `<button data-v="${v}" class="${ui.zoom === v ? "on" : ""}">${l}</button>`).join("")}</div>
-        <button class="btn ghost" data-act="expandAll">Expand all</button><button class="btn ghost" data-act="collapseAll">Collapse</button>` : ""}
-    </div>
-    <div class="people">${team.map(n => `<span>${av(n)}${esc(person(n).short)}</span>`).join("")}</div>
-    ${!vb.length ? `<p class="muted">No projects match the filters.</p>` : ui.view === "list" ? listView(vb) : ganttView(vb)}`;
-}
-
-function listView(vb) {
-  return vb.map(b => {
-    const eps = b.subs.flatMap(s => s.epics), c = count(eps);
+// ===== Shared list rendering ===================================================
+const COLS = `<div class="cols"><span></span><span>Key</span><span>Title</span><span></span><span class="hide-s">Tasks</span><span class="hide-s">Start</span><span class="hide-s">End</span><span>Status</span></div>`;
+function listView(tree, ctx) {
+  if (!tree.length) return `<div class="card empty">Nothing matches the filters.</div>`;
+  return tree.map(b => {
+    const eps = b.subs.flatMap(s => s.epics.map(x => x.e)), c = eps.reduce((a, e) => (a[e.st]++, a), { done: 0, prog: 0, todo: 0 });
+    const t = eps.length || 1;
     return `<section class="card"><div class="blk-h" style="--bc:${b.color}">
       <div><h2>${esc(b.name)}</h2><div class="meta">${eps.length} projects · ${c.done} done · ${c.prog} in progress · ${c.todo} to do</div></div>
-      <div style="width:220px">${bar(c)}</div></div>
-      ${b.subs.map(s => `<div class="sg">${s.name ? `<h3>${esc(s.name)}</h3>` : ""}${s.epics.map(epicRow).join("")}</div>`).join("")}</section>`;
-  }).join("") + (ui.block === "all" && ui.status === "all" ? orphanCard() : "");
+      <div style="width:200px" class="hide-s"><div class="bar"><span style="width:${c.done / t * 100}%;background:var(--done)"></span><span style="width:${c.prog / t * 100}%;background:var(--prog)"></span></div></div></div>
+      ${COLS}${b.subs.map(s => `<div class="sg">${s.name ? `<h3>${esc(s.name)}</h3>` : ""}${s.epics.map(x => epicRow(x, ctx)).join("")}</div>`).join("")}</section>`;
+  }).join("");
 }
-function epicRow(e) {
-  const ts = allUnder(e.k), tc = count(ts), od = ts.filter(overdue).length;
-  return `<div class="ep ${ui.open.has(e.k) ? "open" : ""}" data-ep="${e.k}">
-    <div class="ep-h"><span class="car">▸</span>${key(e.k)}<span>${esc(e.s)}</span>
-      <span class="hide-s">${avs(peopleOf([e, ...ts]))}</span>
-      <span class="muted hide-s">${tc.done}/${ts.length} tasks${od ? ` · <span class="due-late">${od} late</span>` : ""}</span>
-      <span class="muted hide-s">${fmt(e.sd)} – ${fmt(e.dd)}</span><span class="pill s-${e.st}">${ST[e.st]}</span></div>
-    <div class="ep-tasks">${ui.open.has(e.k) ? taskRows(e.k) : ""}</div></div>`;
+function epicRow(x, ctx) {
+  const e = x.e, all = tasksOnly(e.k), done = all.filter(t => t.st === "done").length, late = all.filter(overdue).length, open = ctx.isOpen(e.k);
+  return `<div class="ep ${open ? "open" : ""}" data-ep="${e.k}" data-ctx="${ctx.name}">
+    <div class="ep-h"><span class="car">▸</span>${key(e.k)}<span class="ttl" data-open="${e.k}">${esc(e.s)}${ctx.badge(e)}</span>
+      ${avBtn(e)}<span class="muted hide-s" style="font-size:12px">${done}/${all.length} tasks${late ? ` · <span class="due-late">${late} late</span>` : ""}</span>
+      <span class="hide-s">${dateIn(e, "sd")}</span><span class="hide-s">${dateIn(e, "dd")}</span>${stSel(e)}</div>
+    <div class="ep-tasks">${open ? taskRows(x, ctx) : ""}</div></div>`;
 }
-function taskRows(k) {
-  const ts = tasksOf(k);
-  if (!ts.length) return `<div class="tr muted"><span></span><span>No tasks</span></div>`;
-  return ts.map(t => tRow(t) + tasksOf(t.k).map(s => tRow(s, true)).join("")).join("");
+function taskRows(x, ctx) {
+  const rows = x.tasks.map(t => tRow(t, false, ctx) + (ctx.subtasks ? subsOf(t.k).filter(match).sort(byDue).map(s => tRow(s, true, ctx)).join("") : "")).join("");
+  return (rows || `<div class="tr muted"><span></span><span></span><span>No tasks${x.tasks.length !== tasksOnly(x.e.k).length ? " match" : ""}</span></div>`)
+    + `<div class="tr add"><span></span><span></span><span><button class="lnk" data-new-task="${x.e.k}">+ Add task</button></span></div>`;
 }
-const tRow = (t, sub) => `<div class="tr ${sub ? "sub" : ""}">${key(t.k)}<span>${esc(t.s)}</span>${av(t.a)}
-  <span class="hide-s ${overdue(t) ? "due-late" : "muted"}">${fmt(t.dd)}</span><span class="pill s-${t.st}">${ST[t.st]}</span></div>`;
-function orphanCard() {
-  const l = tasksOf("_none"); if (!l.length) return "";
-  const open = ui.open.has("_none");
-  return `<section class="card"><div class="ep ${open ? "open" : ""}" data-ep="_none" style="padding:0 16px">
-    <div class="ep-h"><span class="car">▸</span><span class="muted">—</span><span><b>Tasks without an epic</b></span><span class="hide-s">${avs(peopleOf(l))}</span><span class="muted hide-s">${l.length} tasks</span><span></span><span></span></div>
-    <div class="ep-tasks">${open ? taskRows("_none") : ""}</div></div></section>`;
+const tRow = (t, sub, ctx) => `<div class="tr ${sub ? "sub" : ""}"><span></span>${key(t.k)}<span class="ttl" data-open="${t.k}">${esc(t.s)}${ctx.badge(t)}</span>${avBtn(t)}
+  <span class="hide-s"></span><span class="hide-s">${dateIn(t, "sd")}</span><span class="hide-s">${dateIn(t, "dd")}</span>${stSel(t)}</div>`;
+
+// ===== Plan ====================================================================
+const planCtx = { name: "plan", isOpen: k => ui.open.has(k), badge: () => "", subtasks: true };
+function planPage() {
+  const tree = buildTree(match, match);
+  const xs = tree.flatMap(b => b.subs.flatMap(s => s.epics)), E = xs.map(x => x.e), T = xs.flatMap(x => x.tasks);
+  const doneRate = l => { const due = l.filter(x => x.dd && x.dd <= today); return [due.length ? due.filter(x => x.st === "done").length / due.length : null, due.length, due.filter(x => x.st === "done").length]; };
+  const [er, en, ed] = doneRate(E), [tr, tn, td] = doneRate(T);
+  const noTasks = E.length ? xs.filter(x => !tasksOnly(x.e.k).length).length / E.length : null;
+  const k = (n, l, s = "") => `<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div>${s ? `<div class="s">${s}</div>` : ""}</div>`;
+  const hl = (r, l, s) => `<div class="kpi hl ${rateCls(r)}"><div class="n">${pct(r)}</div><div class="l">${l}</div><div class="s">${s}</div></div>`;
+  return `<section class="kpis">
+      ${k(E.length, "Epics total")}${k(E.filter(e => e.st === "done").length, "Epics done")}${k(E.filter(e => e.st !== "done").length, "Epics planned", "not done yet")}
+      ${hl(er, "Epics done on plan", `${ed} of ${en} due by today`)}${k(pct(noTasks), "Epics without tasks")}</section>
+    <section class="kpis last">
+      ${k(T.length, "Tasks total")}${k(T.filter(t => t.st === "done").length, "Tasks done")}${k(T.filter(t => t.st !== "done").length, "Tasks planned", "not done yet")}
+      ${hl(tr, "Tasks done on plan", `${td} of ${tn} due by today`)}${k(E.length ? (T.length / E.length).toFixed(1) : "—", "Avg tasks per epic")}</section>
+    <div class="toolbar">
+      <label class="flt">Format <select id="fFormat"><option value="list" ${ui.format === "list" ? "selected" : ""}>List</option><option value="gantt" ${ui.format === "gantt" ? "selected" : ""}>Gantt</option></select></label>
+      ${ui.format === "gantt" ? `<label class="flt">Zoom <select id="fZoom">${[["week", "Weeks"], ["month", "Months"], ["quarter", "Quarters"]].map(([v, l]) => `<option value="${v}" ${ui.zoom === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>` : ""}
+      ${filterBar(true)}
+      <span class="sp"></span>
+      ${ui.format === "gantt" ? `<button class="btn ghost sm" data-act="expandAll">Expand all</button><button class="btn ghost sm" data-act="collapseAll">Collapse</button>` : ""}
+      <button class="btn sm" data-new-epic="1">+ New project</button>
+    </div>
+    ${ui.format === "list" ? listView(tree, planCtx) : ganttView(tree)}`;
 }
 
 // ----- Gantt -------------------------------------------------------------------
 const PX = { week: 14, month: 5, quarter: 2 };
-const dnum = d => Math.floor(Date.parse(d + "T00:00:00Z") / 864e5);
-function ganttView(vb) {
+const dnum = d => Math.floor(Date.UTC(...d.split("-").map((v, i) => i === 1 ? v - 1 : +v)) / 864e5);
+function ganttView(tree) {
+  if (!tree.length) return `<div class="card empty">Nothing matches the filters.</div>`;
   const rows = [];
-  for (const b of vb) {
+  for (const b of tree) {
     rows.push({ kind: "blk", label: b.name, color: b.color });
     for (const s of b.subs) {
-      if (s.name && b.subs.length > 1) rows.push({ kind: "blk", label: "   " + s.name, color: b.color, sub: true });
-      for (const e of s.epics) {
-        rows.push({ kind: "ep", item: e });
-        if (ui.gOpen.has(e.k)) for (const t of tasksOf(e.k)) { rows.push({ kind: "task", item: t }); for (const x of tasksOf(t.k)) rows.push({ kind: "sub", item: x }); }
-      }
+      if (s.name) rows.push({ kind: "blk", label: s.name, color: b.color, sub: true });
+      for (const x of s.epics) { rows.push({ kind: "ep", item: x.e }); if (ui.gOpen.has(x.e.k)) for (const t of x.tasks) rows.push({ kind: "task", item: t }); }
     }
   }
   const dates = rows.filter(r => r.item).flatMap(r => [r.item.sd, r.item.dd]).filter(Boolean).concat(today);
-  const pad = 14, d0 = Math.min(...dates.map(dnum)) - pad, d1 = Math.max(...dates.map(dnum)) + pad;
+  const d0 = Math.min(...dates.map(dnum)) - 14, d1 = Math.max(...dates.map(dnum)) + 14;
   const px = PX[ui.zoom], W = (d1 - d0) * px, x = d => (dnum(d) - d0) * px;
   const ticks = []; let cur = new Date(d0 * 864e5); cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth(), 1));
   while (cur.getTime() / 864e5 < d1) {
-    const iso = cur.toISOString().slice(0, 10), m = cur.getUTCMonth();
+    const m = cur.getUTCMonth();
     if (ui.zoom !== "quarter" || m % 3 === 0)
-      ticks.push({ x: Math.max(0, x(iso)), label: ui.zoom === "quarter" ? `Q${m / 3 + 1} ${cur.getUTCFullYear()}` : cur.toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" }) });
+      ticks.push({ x: Math.max(0, x(cur.toISOString().slice(0, 10))), label: ui.zoom === "quarter" ? `Q${m / 3 + 1} ${cur.getUTCFullYear()}` : cur.toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" }) });
     cur = new Date(Date.UTC(cur.getUTCFullYear(), m + 1, 1));
   }
   if (ui.zoom === "week") for (let d = d0; d < d1; d++) if (new Date(d * 864e5).getUTCDay() === 1) ticks.push({ x: (d - d0) * px, label: new Date(d * 864e5).getUTCDate(), minor: true });
   const left = rows.map(r => {
-    if (r.kind === "blk") return `<div class="g-row blk" style="border-left:4px solid ${r.color};${r.sub ? "font-weight:600;font-size:12px;color:var(--muted)" : ""}">${esc(r.label)}</div>`;
+    if (r.kind === "blk") return `<div class="g-row blk" style="border-left:4px solid ${r.color};${r.sub ? "font-weight:600;font-size:12px;color:var(--muted);padding-left:18px" : ""}">${esc(r.label)}</div>`;
     const it = r.item;
-    if (r.kind === "ep") return `<div class="g-row ep" data-gep="${it.k}" title="${esc(it.s)}"><span class="car" style="${ui.gOpen.has(it.k) ? "transform:rotate(90deg)" : ""}">▸</span>${key(it.k)}<span class="ttl">${esc(it.s)}</span>${av(it.a)}</div>`;
-    return `<div class="g-row task ${r.kind === "sub" ? "sub" : ""}" title="${esc(it.s)}">${key(it.k)}<span class="ttl">${esc(it.s)}</span>${av(it.a)}</div>`;
+    if (r.kind === "ep") return `<div class="g-row ep"><span class="car" data-gep="${it.k}" style="cursor:pointer;${ui.gOpen.has(it.k) ? "transform:rotate(90deg)" : ""}">▸</span>${key(it.k)}<span class="ttl" data-open="${it.k}" title="${esc(it.s)}">${esc(it.s)}</span>${avHtml(it.a)}</div>`;
+    return `<div class="g-row task">${key(it.k)}<span class="ttl" data-open="${it.k}" title="${esc(it.s)}">${esc(it.s)}</span>${avHtml(it.a)}</div>`;
   }).join("");
   const lanes = rows.map(r => {
     if (r.kind === "blk") return `<div class="g-lane blk"></div>`;
     const it = r.item, od = overdue(it) ? " overdue" : "", p = person(it.a);
-    const tip = `${it.k} · ${it.s}\n${fmt(it.sd)} – ${fmt(it.dd)} · ${ST[it.st]}${p ? " · " + p.short : ""}`;
+    const tip = esc(`${it.k} · ${it.s}\n${fmt(it.sd)} – ${fmt(it.dd)} · ${ST[it.st]}${p ? " · " + p.short : ""}`);
     let el = "";
-    if (it.sd && it.dd) el = `<div class="g-bar ${r.kind === "ep" ? "ep" : ""} ${it.st}${od}" style="left:${x(it.sd)}px;width:${Math.max(4, x(it.dd) - x(it.sd) + px)}px" title="${esc(tip)}"></div>`;
-    else if (it.dd) el = `<div class="g-dia ${it.st}" style="left:${x(it.dd) + px / 2}px" title="${esc(tip)}"></div>`;
+    if (it.sd && it.dd) el = `<div class="g-bar ${r.kind === "ep" ? "ep" : ""} ${it.st}${od}" data-open="${it.k}" style="left:${x(it.sd)}px;width:${Math.max(4, x(it.dd) - x(it.sd) + px)}px" title="${tip}"></div>`;
+    else if (it.dd) el = `<div class="g-dia ${it.st}" data-open="${it.k}" style="left:${x(it.dd) + px / 2}px" title="${tip}"></div>`;
     return `<div class="g-lane">${el}</div>`;
   }).join("");
   return `<div class="card"><div class="gantt"><div class="g-grid">
@@ -341,105 +495,306 @@ function ganttView(vb) {
     </div></div></div>
     <div class="legend"><span><span class="sw" style="background:var(--done)"></span>Done</span><span><span class="sw" style="background:var(--prog)"></span>In progress</span>
       <span><span class="sw" style="background:var(--todo)"></span>To do</span><span><span class="sw" style="box-shadow:0 0 0 2px var(--bad) inset"></span>Overdue</span>
-      <span>◆ due date only (no start date)</span><span><span class="sw" style="background:var(--bad);width:2px"></span>Today</span></div>`;
+      <span>◆ end date only</span><span><span class="sw" style="background:var(--bad);width:2px"></span>Today</span></div>`;
 }
 
-// ===== Backlog page ============================================================
+// ===== Backlog =================================================================
 function backlogPage() {
-  const e = D.epicByKey[BACKLOG_EPIC], items = allUnder(BACKLOG_EPIC), c = count(items);
-  const flt = ui.status === "all" ? items : items.filter(i => i.st === ui.status);
-  return `<section class="kpis">${[[items.length, "Ideas & problems"], [c.todo, "To do"], [c.prog, "In progress"], [c.done, "Done"]]
-      .map(([n, l]) => `<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("")}</section>
-    <div class="toolbar">
-      <div class="seg" data-k="status">${[["all", "All"], ["todo", "To do"], ["prog", "In progress"], ["done", "Done"]].map(([v, l]) => `<button data-v="${v}" class="${ui.status === v ? "on" : ""}">${l}</button>`).join("")}</div>
-      <span class="muted">Epic ${key(BACKLOG_EPIC)} ${esc(e ? e.s : "")}</span>
-      <button class="btn" style="margin-left:auto" data-act="idea">+ Add an idea</button>
-    </div>
-    <div class="card">${flt.length ? [...flt].sort((a, b) => num(b.k) - num(a.k)).map(i => `<div class="bl">${key(i.k)}<span>${esc(i.s)}</span>${av(i.a)}
-      <span class="muted hide-s">${fmt(i.dd)}</span><span class="pill s-${i.st}">${ST[i.st]}</span></div>`).join("") : `<p class="note">Nothing here.</p>`}</div>`;
+  const e = D.epicByKey[BACKLOG_EPIC], items = tasksOnly(BACKLOG_EPIC).sort((a, b) => num(b.k) - num(a.k));
+  return `<section class="kpis last"><div class="kpi"><div class="n">${items.length}</div><div class="l">Ideas & problems in the backlog</div></div></section>
+    <div class="toolbar"><span class="muted">Epic ${key(BACKLOG_EPIC)} ${esc(e ? e.s : "")}</span><span class="sp"></span><button class="btn sm" data-act="idea">+ Add an idea</button></div>
+    <div class="card">${items.length ? items.map(i => `<div class="bl">${key(i.k)}<span class="ttl" data-open="${i.k}">${esc(i.s)}</span>${avBtn(i)}
+      <span class="hide-s">${dateIn(i, "dd")}</span>${stSel(i)}</div>`).join("") : `<div class="empty">The backlog is empty.</div>`}</div>`;
 }
 
-// ===== Efficiency report (hidden: SHOW_REPORT = false) =========================
-function outcome(t) { if (!t.dd) return null; if (t.st === "done") return t.rd && t.rd <= t.dd ? "ontime" : "late"; return t.dd < today ? "overdue" : "upcoming"; }
-function blockOf(t) { let p = t.p; const seen = new Set();
-  while (p && !seen.has(p)) { seen.add(p); const e = D.epicByKey[p]; if (e) return e.b || NO_BLOCK; p = (D.issueByKey[p] || {}).p; } return "Tasks without an epic"; }
-function stats(list) { const c = { ontime: 0, late: 0, overdue: 0, upcoming: 0, nodue: 0 }; for (const t of list) c[outcome(t) || "nodue"]++;
-  c.due = c.ontime + c.late + c.overdue; c.rate = c.due ? c.ontime / c.due : null; return c; }
-const rateCls = r => r == null ? "" : r >= .8 ? "g" : r >= .5 ? "y" : "b";
-const pct = r => r == null ? "—" : Math.round(r * 100) + "%";
-function reportPage() {
-  const blocks = [...new Set(D.issues.map(blockOf))];
-  const list = D.issues.filter(t => ui.rBlock === "all" || blockOf(t) === ui.rBlock), T = stats(list);
-  const people = {}; for (const t of list) (people[t.a || "Unassigned"] ||= []).push(t);
-  const pRows = Object.entries(people).map(([n, l]) => [n, stats(l)]).filter(([, c]) => c.due + c.upcoming).sort((a, b) => b[1].due - a[1].due);
-  const bRows = blocks.map(b => [b, stats(D.issues.filter(t => blockOf(t) === b))]).sort((a, b) => b[1].due - a[1].due);
-  const tbl = (head, rows, isP) => `<div class="card"><table><thead><tr><th>${head}</th><th class="r">Due date passed</th><th class="r">On time</th><th class="r">Late</th><th class="r">Overdue, open</th><th class="r">Upcoming</th><th class="r">% on time</th><th style="width:22%"></th></tr></thead><tbody>
-    ${rows.map(([n, c]) => `<tr><td>${isP && person(n) ? `<span style="display:inline-flex;gap:8px;align-items:center">${av(n)}${esc(person(n).short)}</span>` : esc(n)}</td><td class="r">${c.due}</td><td class="r">${c.ontime}</td><td class="r">${c.late}</td><td class="r">${c.overdue}</td><td class="r muted">${c.upcoming}</td>
-      <td class="r"><span class="rate ${rateCls(c.rate)}">${pct(c.rate)}</span></td>
-      <td>${c.due ? `<div class="bar"><span style="width:${c.ontime / c.due * 100}%;background:var(--done)"></span><span style="width:${c.late / c.due * 100}%;background:var(--late)"></span><span style="width:${c.overdue / c.due * 100}%;background:var(--bad)"></span></div>` : ""}</td></tr>`).join("")}
-    </tbody></table></div>`;
-  return `<div class="toolbar"><label class="flt">Block <select id="rBlock"><option value="all">All blocks</option>${blocks.map(b => `<option ${ui.rBlock === b ? "selected" : ""}>${esc(b)}</option>`).join("")}</select></label></div>
-    <section class="kpis"><div class="kpi"><div class="n rate ${rateCls(T.rate)}">${pct(T.rate)}</div><div class="l">On time, total</div></div>
-      <div class="kpi"><div class="n">${T.ontime}</div><div class="l">Closed on time</div></div><div class="kpi"><div class="n" style="color:var(--late)">${T.late}</div><div class="l">Closed late</div></div>
-      <div class="kpi"><div class="n" style="color:var(--bad)">${T.overdue}</div><div class="l">Overdue, still open</div></div><div class="kpi"><div class="n">${T.upcoming}</div><div class="l">Not due yet</div></div></section>
-    <h2 class="h2">By assignee</h2>${tbl("Assignee", pRows, true)}<h2 class="h2">By block</h2>${tbl("Block", bRows)}
-    <p class="note">% on time = tasks closed by their due date ÷ all tasks whose due date has passed (on time + late + overdue open). Tasks and subtasks with a due date; ${T.nodue} without a due date are excluded.</p>`;
+// ===== Periods =================================================================
+function periodRange(mode, anchor) {
+  if (mode === "week") { const dow = (parse(anchor).getDay() + 6) % 7, s = addDays(anchor, -dow); return [s, addDays(s, 6)]; }
+  const d = parse(anchor); return [iso(new Date(d.getFullYear(), d.getMonth(), 1)), iso(new Date(d.getFullYear(), d.getMonth() + 1, 0))];
+}
+const shiftAnchor = (mode, anchor, n) => { if (mode === "week") return addDays(anchor, 7 * n); const d = parse(anchor); return iso(new Date(d.getFullYear(), d.getMonth() + n, 1)); };
+function isoWeek(s) { const d = parse(s); const t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 3 - (d.getDay() + 6) % 7); const w1 = new Date(t.getFullYear(), 0, 4);
+  return 1 + Math.round(((t - w1) / 864e5 - 3 + (w1.getDay() + 6) % 7) / 7); }
+function periodLabel(mode, ps, pe, short) {
+  if (mode === "week") return short ? `W${isoWeek(ps)} · ${fmtS(ps)}` : `Week ${isoWeek(ps)} · ${fmtS(ps)} – ${fmtS(pe)} ${parse(pe).getFullYear()}`;
+  return parse(ps).toLocaleDateString("en-GB", short ? { month: "short", year: "2-digit" } : { month: "long", year: "numeric" });
+}
+const inRange = (x, ps, pe) => x.dd && (x.sd && x.sd < x.dd ? x.sd : x.dd) <= pe && x.dd >= ps;
+const dueIn = (x, ps, pe) => x.dd && x.dd >= ps && x.dd <= pe;
+const isCarried = (x, ps) => x.st !== "done" && x.dd && x.dd < ps;
+function periodStats(ps, pe) {   // A, B, D, E for one period; Block/Subgroup/People filters, carried-over excluded
+  const eps = D.epics.filter(blockOk);
+  const A = eps.filter(e => dueIn(e, ps, pe) && (personOk(e) || tasksOnly(e.k).some(personOk))).length;
+  const T = eps.flatMap(e => tasksOnly(e.k)).filter(t => personOk(t) && dueIn(t, ps, pe));
+  const done = T.filter(t => t.st === "done").length;
+  return { A, B: T.length, done, D: T.length ? done / T.length : null, E: T.length ? (T.length - done) / T.length : null };
+}
+function periodsPage() {
+  const [ps, pe] = periodRange(ui.perMode, ui.perAnchor);
+  const ok = x => match(x) && (inRange(x, ps, pe) || isCarried(x, ps));
+  const tree = buildTree(ok, ok);
+  const ctx = { name: "per", isOpen: k => !ui.perClosed.has(k), badge: x => isCarried(x, ps) ? `<span class="carry" title="Not done, end date ${fmt(x.dd)}">Carried over</span>` : "", subtasks: false };
+  const isCur = periodRange(ui.perMode, today)[0] === ps;
+  let stats = "";
+  if (ui.statsOpen) {
+    const s = periodStats(ps, pe);
+    const card = (n, l, sub, cls = "") => `<div class="kpi ${cls}"><div class="n">${n}</div><div class="l">${l}</div><div class="s">${sub}</div></div>`;
+    stats = `<section class="stats">
+      ${card(s.A, "A · Epics ending in the period", periodLabel(ui.perMode, ps, pe))}
+      ${card(s.B, "B · Tasks ending in the period", periodLabel(ui.perMode, ps, pe))}
+      ${card(pct(s.D), "D · Share of tasks done", `${s.done} of ${s.B}`, `hl ${rateCls(s.D)}`)}
+      ${card(pct(s.E), "E · Share of tasks not done", `${s.B - s.done} of ${s.B}`, `hl ${rateCls(s.E == null ? null : 1 - s.E)}`)}</section>`;
+  }
+  return `<div class="toolbar">
+      <div class="seg" data-k="perMode">${[["week", "Week"], ["month", "Month"]].map(([v, l]) => `<button data-v="${v}" class="${ui.perMode === v ? "on" : ""}">${l}</button>`).join("")}</div>
+      <div class="pnav"><button class="navb" data-per="-1" title="Previous">‹</button><span class="plabel">${periodLabel(ui.perMode, ps, pe)}</span><button class="navb" data-per="1" title="Next">›</button></div>
+      ${isCur ? "" : `<button class="btn ghost sm" data-per="0">Today</button>`}
+      <span class="sp"></span>
+      <button class="btn ${ui.statsOpen ? "" : "ghost"} sm" data-act="stats">📊 Statistics</button>
+      <button class="btn sm" data-new-epic="1">+ New project</button>
+    </div>
+    <div class="toolbar">${filterBar(true)}</div>
+    ${stats}
+    ${listView(tree, ctx)}
+    <p class="note">Shown: epics and tasks whose start–end range overlaps the period (items without a start date count by their end date), plus all unfinished items with an end date before the period, marked <span class="carry">Carried over</span>.</p>`;
+}
+
+// ===== Efficiency ==============================================================
+function effPage() {
+  const N = ui.effMode === "month" ? 6 : 12;
+  const lastAnchor = shiftAnchor(ui.effMode, today, ui.effOffset);
+  const periods = [];
+  for (let i = N - 1; i >= 0; i--) { const [ps, pe] = periodRange(ui.effMode, shiftAnchor(ui.effMode, lastAnchor, -i)); periods.push({ ps, pe, s: periodStats(ps, pe) }); }
+  const curPs = periodRange(ui.effMode, today)[0];
+  const th = periods.map(p => `<th class="${p.ps === curPs ? "cur" : ""}">${periodLabel(ui.effMode, p.ps, p.pe, true)}</th>`).join("");
+  const row = (l, f) => `<tr><td>${l}</td>${periods.map(p => f(p)).join("")}</tr>`;
+  const c = p => p.ps === curPs ? "cur" : "";
+  return `<div class="toolbar">
+      <div class="seg" data-k="effMode">${[["month", "Months (6)"], ["week", "Weeks (12)"]].map(([v, l]) => `<button data-v="${v}" class="${ui.effMode === v ? "on" : ""}">${l}</button>`).join("")}</div>
+      <div class="pnav"><button class="navb" data-eff="-1" title="Earlier">‹</button><span class="plabel">${periodLabel(ui.effMode, periods[0].ps, periods[0].pe, true)} – ${periodLabel(ui.effMode, periods[N - 1].ps, periods[N - 1].pe, true)}</span><button class="navb" data-eff="1" title="Later">›</button></div>
+      ${ui.effOffset ? `<button class="btn ghost sm" data-eff="0">Current</button>` : ""}
+    </div>
+    <div class="toolbar">${filterBar(false)}</div>
+    <div class="card eff"><table>
+      <thead><tr><th>Metric</th>${th}</tr></thead>
+      <tbody>
+        ${row("A · Epics ending in the period", p => `<td class="${c(p)}"><span class="v">${p.s.A}</span></td>`)}
+        ${row("B · Tasks ending in the period", p => `<td class="${c(p)}"><span class="v">${p.s.B}</span></td>`)}
+        ${row("D · Share of tasks done", p => `<td class="cell ${rateCls(p.s.D)} ${c(p)}"><span class="v">${pct(p.s.D)}</span><span class="sub">${p.s.done} of ${p.s.B}</span></td>`)}
+        ${row("E · Share of tasks not done", p => `<td class="cell ${rateCls(p.s.E == null ? null : 1 - p.s.E)} ${c(p)}"><span class="v">${pct(p.s.E)}</span><span class="sub">${p.s.B - p.s.done} of ${p.s.B}</span></td>`)}
+      </tbody></table></div>
+    <p class="note">Done = status Done. B, D and E count tasks (not subtasks) with an end date inside the period. Colours: ≥80% green · 50–79% amber · &lt;50% red (inverted for “not done”). Arrows move the window by one period.</p>`;
+}
+
+// ===== Writes ==================================================================
+async function api(path, body) {
+  const r = await fetch(WORKER_URL + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Error " + r.status);
+  return j;
+}
+function applyLocal(it, patch) {
+  if ("s" in patch) it.s = patch.s;
+  if ("sd" in patch) it.sd = patch.sd;
+  if ("dd" in patch) it.dd = patch.dd;
+  if ("aid" in patch) { it.aid = patch.aid; it.a = patch.aid ? Object.keys(D.userIds).find(n => D.userIds[n] === patch.aid) || it.a : null; }
+  if ("block" in patch) {
+    const b = patch.block && D.blocksMeta.find(x => x.id === patch.block.id);
+    it.b = b ? b.name : null; it.g = b && patch.block.child ? (b.children.find(c => c.id === patch.block.child) || {}).name || null : null;
+  }
+}
+async function save(k, patch, msg = "Saved") {
+  const it = item(k), prev = { ...it };
+  applyLocal(it, patch); render();
+  try { await api("/update", { key: k, ...patch }); toast(`${msg} · ${k}`); }
+  catch (e) { Object.assign(it, prev); render(); toast(`Not saved (${k}): ${e.message}`, 6000); }
+}
+async function setStatus(k, to) {
+  const it = item(k), prev = { st: it.st, rd: it.rd };
+  it.st = to; it.rd = to === "done" ? today : null; render();
+  try { const j = await api("/status", { key: k, to }); toast(`${k} → ${j.status || ST[to]}`); }
+  catch (e) { Object.assign(it, prev); render(); toast(`Status not changed (${k}): ${e.message}`, 6000); }
+}
+
+// ===== Drawer (side panel) =====================================================
+function openDrawer(k) { ui.drawer = { mode: "view", key: k }; ui.draft = null; render(); loadDetail(k); }
+function openCreate(type, parent) { ui.drawer = { mode: "create", type, parent }; ui.draft = null; render(); setTimeout(() => $("drTitle")?.focus(), 30); }
+function closeDrawer() { ui.drawer = null; ui.draft = null; render(); }
+async function loadDetail(k) {
+  if (D.detail[k]?.loaded) return;
+  D.detail[k] = { loading: true };
+  try { const j = await fetch(WORKER_URL + "/issue/" + k).then(r => r.json()); if (j.error) throw new Error(j.error); D.detail[k] = { loaded: true, desc: j.desc || "" }; }
+  catch (e) { D.detail[k] = { error: e.message }; }
+  if (ui.drawer?.key === k) renderDrawer();
+}
+const peopleOptions = cur => `<option value="">Unassigned</option>${TEAM.filter(p => D.userIds[p.name]).map(p => `<option value="${D.userIds[p.name]}" ${cur === p.name ? "selected" : ""}>${p.short}</option>`).join("")}`;
+const blockOptions = cur => `<option value="">— none —</option>${D.blocksMeta.map(b => `<option value="${b.id}" ${cur === b.name ? "selected" : ""}>${esc(b.name)}</option>`).join("")}`;
+const subOptions = (blockName, cur) => { const b = D.blocksMeta.find(x => x.name === blockName);
+  return `<option value="">— none —</option>${(b?.children || []).map(c => `<option value="${c.id}" ${cur === c.name ? "selected" : ""}>${esc(c.name)}</option>`).join("")}`; };
+function renderDrawer() {
+  const dr = $("drawer"), sc = $("scrim");
+  if (!ui.drawer || !D) { dr.hidden = true; sc.hidden = true; return; }
+  dr.hidden = false; sc.hidden = false;
+  const d = ui.drawer;
+  if (d.mode === "create") {
+    const isEpic = d.type === "epic", par = d.parent && D.epicByKey[d.parent];
+    const f = ui.draft || {};
+    dr.innerHTML = `<div class="dr-h"><span class="pill s-prog">New ${isEpic ? "project (epic)" : "task"}</span><button class="x" data-act="close" title="Close">×</button></div>
+      <div class="dr-b">
+        ${par ? `<div class="crumb">Epic: <span class="ttl" data-open="${par.k}">${par.k} · ${esc(par.s)}</span></div>` : ""}
+        <label>Title *<input id="drTitle" class="title" maxlength="255" value="${esc(f.s || "")}"></label>
+        ${isEpic ? `<div class="dr-grid"><label>Block<select id="crBlock">${blockOptions(f.bName || (ui.block !== "all" ? ui.block : ""))}</select></label>
+          <label>Subgroup<select id="crSub">${subOptions(f.bName || (ui.block !== "all" ? ui.block : ""), f.gName || (ui.sub !== "all" ? ui.sub : ""))}</select></label></div>` : ""}
+        <div class="dr-grid"><label>Assignee<select id="crAssignee">${peopleOptions(f.a || "")}</select></label><span></span>
+          <label>Start date<input type="date" id="crSd" value="${f.sd || ""}"></label><label>End date<input type="date" id="crDd" value="${f.dd || ""}"></label></div>
+        <label>Description<textarea id="drDesc" placeholder="Plain text. Blank line = new paragraph, lines starting with “- ” = bullet list">${esc(f.desc || "")}</textarea></label>
+        <div class="actions"><button class="btn ghost" data-act="close">Cancel</button><button class="btn" data-act="create">Create in Jira</button></div>
+      </div>`;
+    return;
+  }
+  const it = item(d.key);
+  if (!it) { dr.innerHTML = `<div class="dr-h"><button class="x" data-act="close">×</button></div><div class="dr-b muted">Not found.</div>`; return; }
+  const isEpic = !!D.epicByKey[it.k], parent = !isEpic && it.p && D.epicByKey[it.p], det = D.detail[it.k] || {};
+  const draft = ui.draft?.key === it.k ? ui.draft : null;
+  const tasks = isEpic ? tasksOnly(it.k).sort(byDue) : [];
+  dr.innerHTML = `<div class="dr-h"><span class="pill ${isEpic ? "s-prog" : "s-todo"}">${isEpic ? "Epic" : it.t === "sub" ? "Subtask" : "Task"}</span>
+      <a class="k" href="${JIRA}${it.k}" target="_blank" rel="noopener">${it.k} ↗</a><button class="x" data-act="close" title="Close">×</button></div>
+    <div class="dr-b">
+      ${parent ? `<div class="crumb">Epic: <span class="ttl" data-open="${parent.k}">${parent.k} · ${esc(parent.s)}</span></div>` : ""}
+      <label>Title<input id="drTitle" class="title" maxlength="255" value="${esc(draft ? draft.s : it.s)}"></label>
+      <div class="dr-grid">
+        <label>Status${stSel(it)}</label>
+        <label>Assignee<select class="drAssignee" data-key="${it.k}">${peopleOptions(it.a)}</select></label>
+        <label>Start date${dateIn(it, "sd")}</label>
+        <label>End date${dateIn(it, "dd")}</label>
+      </div>
+      <div class="dr-grid">
+        ${isEpic ? `<label>Block<select class="drBlock" data-key="${it.k}">${blockOptions(it.b)}</select></label>
+                    <label>Subgroup<select class="drSub" data-key="${it.k}" ${(D.blocksMeta.find(b => b.name === it.b)?.children || []).length ? "" : "disabled"}>${subOptions(it.b, it.g)}</select></label>`
+                 : `<label>Block<div class="ro">${esc(parent?.b || "—")}</div></label><label>Subgroup<div class="ro">${esc(parent?.g || "—")}</div></label>`}
+      </div>
+      <label>Description<textarea id="drDesc" ${det.loaded || draft ? "" : "disabled"} placeholder="${det.loading ? "Loading…" : det.error ? "Could not load: " + esc(det.error) : "No description"}">${esc(draft ? draft.desc : det.loaded ? det.desc : "")}</textarea></label>
+      <div class="actions"><button class="btn" data-act="saveText" ${det.loaded || draft ? "" : "disabled"}>Save title & description</button></div>
+      ${isEpic ? `<div class="dr-sec"><span>Tasks (${tasks.length})</span><button class="lnk" data-new-task="${it.k}">+ Add task</button></div>
+        <div class="dr-tasks">${tasks.length ? tasks.map(t => `<div class="row">${key(t.k)}<span class="ttl" data-open="${t.k}">${esc(t.s)}</span>${avHtml(t.a)}
+          <span class="${overdue(t) ? "due-late" : "muted"}" style="font-size:12px">${t.dd ? fmtS(t.dd) : "—"}</span><span class="pill s-${t.st}">${ST[t.st]}</span></div>`).join("") : `<div class="row muted">No tasks yet</div>`}</div>` : ""}
+    </div>`;
+}
+async function createFromDrawer() {
+  const d = ui.drawer, s = $("drTitle").value.trim();
+  if (!s) return toast("Title is required");
+  const body = { type: d.type, s, desc: $("drDesc").value, aid: $("crAssignee").value || null, sd: $("crSd").value || null, dd: $("crDd").value || null };
+  if (d.type === "task") body.parent = d.parent;
+  if (d.type === "epic") { const b = $("crBlock").value, g = $("crSub").value; body.block = b ? { id: b, child: g || null } : null; }
+  const btn = document.querySelector('[data-act="create"]'); btn.disabled = true; btn.textContent = "Creating…";
+  try {
+    const j = await api("/create", body);
+    toast(`Created ${j.key}`);
+    await load(true).catch(() => {});
+    if (d.type === "task") ui.open.add(d.parent);
+    openDrawer(j.key);
+  } catch (e) { toast("Not created: " + e.message, 6000); btn.disabled = false; btn.textContent = "Create in Jira"; }
+}
+async function saveText() {
+  const k = ui.drawer.key, it = item(k), s = $("drTitle").value.trim(), desc = $("drDesc").value;
+  if (!s) return toast("Title is required");
+  const btn = document.querySelector('[data-act="saveText"]'); btn.disabled = true;
+  try { await api("/update", { key: k, s, desc }); it.s = s; D.detail[k] = { loaded: true, desc }; ui.draft = null; toast(`Saved · ${k}`); render(); }
+  catch (e) { toast("Not saved: " + e.message, 6000); btn.disabled = false; }
+}
+
+// ===== Assignee popover ========================================================
+function openAssign(btn) {
+  const k = btn.dataset.assign, it = item(k), pop = $("pop"), r = btn.getBoundingClientRect();
+  pop.innerHTML = [...TEAM.filter(p => D.userIds[p.name]).map(p => `<button data-pick="${D.userIds[p.name]}" data-k="${k}" class="${it.a === p.name ? "cur" : ""}">${avHtml(p.name)} ${p.short}</button>`),
+    `<button data-pick="" data-k="${k}" class="${!it.a ? "cur" : ""}">${avHtml(null)} Unassigned</button>`].join("");
+  pop.hidden = false;
+  pop.style.left = Math.min(r.left + scrollX, scrollX + innerWidth - 190) + "px"; pop.style.top = (r.bottom + scrollY + 4) + "px";
 }
 
 // ===== Events ==================================================================
-$("app").addEventListener("click", e => {
-  const seg = e.target.closest(".seg button");
-  if (seg) { ui[seg.parentElement.dataset.k] = seg.dataset.v; return render(); }
-  const act = e.target.closest("[data-act]")?.dataset.act;
+document.addEventListener("click", e => {
+  const t = e.target;
+  // popover
+  const pick = t.closest("[data-pick]");
+  if (pick) { $("pop").hidden = true; const k = pick.dataset.k, v = pick.dataset.pick || null; if ((item(k).aid || null) !== v) save(k, { aid: v }, "Assignee changed"); return; }
+  if (!t.closest("#pop")) $("pop").hidden = true;
+  const ab = t.closest("[data-assign]"); if (ab) { e.stopPropagation(); return openAssign(ab); }
+  // multi-select
+  const tog = t.closest("[data-ms-toggle]"); if (tog) { ui.ms = ui.ms === tog.dataset.msToggle ? null : tog.dataset.msToggle; return render(); }
+  const msAll = t.closest("[data-ms-all]"), msClr = t.closest("[data-ms-clear]");
+  if (msAll || msClr) { const id = (msAll || msClr).dataset[msAll ? "msAll" : "msClear"], set = id === "people" ? ui.people : ui.statuses;
+    set.clear(); if (msAll) (id === "people" ? PEOPLE_OPTS : STATUS_OPTS).forEach(v => set.add(v)); return render(); }
+  if (ui.ms && !t.closest(".ms")) { ui.ms = null; render(); }
+  // drawer / create
+  const act = t.closest("[data-act]")?.dataset.act;
+  if (act === "close") return closeDrawer();
+  if (act === "create") return createFromDrawer();
+  if (act === "saveText") return saveText();
+  if (act === "idea") return openIdea();
+  if (act === "stats") { ui.statsOpen = !ui.statsOpen; return render(); }
   if (act === "expandAll") { D.epics.forEach(x => ui.gOpen.add(x.k)); return render(); }
   if (act === "collapseAll") { ui.gOpen.clear(); return render(); }
-  if (act === "idea") return openIdea();
-  if (e.target.closest("a")) return;
-  const g = e.target.closest("[data-gep]");
-  if (g) { const k = g.dataset.gep; ui.gOpen.has(k) ? ui.gOpen.delete(k) : ui.gOpen.add(k); return render(); }
-  const ep = e.target.closest(".ep-h")?.parentElement;
-  if (ep) { const k = ep.dataset.ep; if (ui.open.has(k)) { ui.open.delete(k); ep.classList.remove("open"); }
-    else { ui.open.add(k); ep.classList.add("open"); ep.querySelector(".ep-tasks").innerHTML = taskRows(k); } return; }
-  const bh = e.target.closest(".blk-h"); if (bh) bh.parentElement.classList.toggle("collapsed");
+  if (t.id === "scrim") return closeDrawer();
+  const ne = t.closest("[data-new-epic]"); if (ne) return openCreate("epic");
+  const nt = t.closest("[data-new-task]"); if (nt) return openCreate("task", nt.dataset.newTask);
+  const op = t.closest("[data-open]"); if (op) return openDrawer(op.dataset.open);
+  // segments + period navigation
+  const seg = t.closest(".seg button"); if (seg) { ui[seg.parentElement.dataset.k] = seg.dataset.v; if (seg.parentElement.dataset.k === "effMode") ui.effOffset = 0; return render(); }
+  const pn = t.closest("[data-per]"); if (pn) { const n = +pn.dataset.per; ui.perAnchor = n ? shiftAnchor(ui.perMode, ui.perAnchor, n) : today; return render(); }
+  const en = t.closest("[data-eff]"); if (en) { const n = +en.dataset.eff; ui.effOffset = n ? ui.effOffset + n : 0; return render(); }
+  const g = t.closest("[data-gep]"); if (g) { const k = g.dataset.gep; ui.gOpen.has(k) ? ui.gOpen.delete(k) : ui.gOpen.add(k); return render(); }
+  if (t.closest("a, select, input, button, textarea")) return;
+  const eh = t.closest(".ep-h");
+  if (eh) { const ep = eh.parentElement, k = ep.dataset.ep;
+    if (ep.dataset.ctx === "per") ui.perClosed.has(k) ? ui.perClosed.delete(k) : ui.perClosed.add(k);
+    else ui.open.has(k) ? ui.open.delete(k) : ui.open.add(k);
+    return render(); }
+  const bh = t.closest(".blk-h"); if (bh) bh.parentElement.classList.toggle("collapsed");
 });
-$("app").addEventListener("change", e => {
-  if (e.target.id === "fBlock") { ui.block = e.target.value; ui.sub = "all"; render(); }
-  if (e.target.id === "fSub") { ui.sub = e.target.value; render(); }
-  if (e.target.id === "rBlock") { ui.rBlock = e.target.value; render(); }
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.matches("[data-ms-opt]")) { const set = t.dataset.msOpt === "people" ? ui.people : ui.statuses; t.checked ? set.add(t.value) : set.delete(t.value); return render(); }
+  if (t.id === "fBlock") { ui.block = t.value; ui.sub = "all"; return render(); }
+  if (t.id === "fSub") { ui.sub = t.value; return render(); }
+  if (t.id === "fFormat") { ui.format = t.value; return render(); }
+  if (t.id === "fZoom") { ui.zoom = t.value; return render(); }
+  if (t.classList.contains("stsel")) return setStatus(t.dataset.key, t.value);
+  if (t.classList.contains("dt")) return save(t.dataset.key, { [t.dataset.f]: t.value || null }, t.dataset.f === "sd" ? "Start date saved" : "End date saved");
+  if (t.classList.contains("drAssignee")) return save(t.dataset.key, { aid: t.value || null }, "Assignee changed");
+  if (t.classList.contains("drBlock")) return save(t.dataset.key, { block: t.value ? { id: t.value, child: null } : null }, "Block changed");
+  if (t.classList.contains("drSub")) { const it = item(t.dataset.key), b = D.blocksMeta.find(x => x.name === it.b);
+    return save(t.dataset.key, { block: b ? { id: b.id, child: t.value || null } : null }, "Subgroup changed"); }
+  if (t.id === "crBlock") { const b = D.blocksMeta.find(x => x.id === t.value); ui.draft = { ...collectCreate(), bName: b ? b.name : "", gName: "" }; return renderDrawer(); }
 });
+function collectCreate() { return { s: $("drTitle")?.value || "", desc: $("drDesc")?.value || "", a: Object.keys(D.userIds).find(n => D.userIds[n] === $("crAssignee")?.value) || "",
+  sd: $("crSd")?.value || "", dd: $("crDd")?.value || "", bName: D.blocksMeta.find(x => x.id === $("crBlock")?.value)?.name || "", gName: "" }; }
+document.addEventListener("input", e => {   // keep unsaved title/description when the panel re-renders
+  if (!ui.drawer || !["drTitle", "drDesc"].includes(e.target.id)) return;
+  if (ui.drawer.mode === "view") ui.draft = { key: ui.drawer.key, s: $("drTitle").value, desc: $("drDesc").value };
+  else ui.draft = { ...(ui.draft || {}), ...collectCreate(), bName: ui.draft?.bName ?? collectCreate().bName, gName: D.blocksMeta.flatMap(b => b.children).find(c => c.id === $("crSub")?.value)?.name || "" };
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("pop").hidden) $("pop").hidden = true; else if (ui.drawer) closeDrawer(); } });
 
 $("refresh").onclick = async () => {
   const b = $("refresh"); b.disabled = true; b.textContent = "↻ Refreshing…";
-  try {
-    if (WORKER_URL) { await load(true); toast("Data refreshed from Jira"); }
-    else { await load(false); toast("Live refresh from Jira will work once the Cloudflare Worker is connected. The data.json snapshot was reloaded.", 6000); }
-  } catch (err) { toast("Refresh failed: " + err.message); }
+  try { await load(true); toast("Data refreshed from Jira"); }
+  catch (err) { toast("Refresh failed: " + err.message); }
   finally { b.disabled = false; b.textContent = "↻ Refresh"; }
 };
 
+// ===== Idea form ===============================================================
 const dlg = $("ideaDlg"), form = $("ideaForm"), msg = $("msg"), send = $("sendIdea");
 function openIdea() { msg.className = "msg"; dlg.showModal(); }
 $("openIdea").onclick = openIdea;
-if (!WORKER_URL) $("sendIdea").textContent = "Open in Jira";
 $("closeIdea").onclick = () => dlg.close();
 form.addEventListener("submit", async e => {
   e.preventDefault();
   const d = Object.fromEntries(new FormData(form));
   if (!d.summary.trim() || !d.author) { msg.className = "msg err"; msg.textContent = "Please fill in the title and choose your name."; return; }
-  if (!WORKER_URL) {   // no Worker yet: open Jira's own create screen, pre-filled
-    const desc = (d.description.trim() ? d.description.trim() + "\n\n" : "") + `Submitted via portfolio site by ${d.author}.\nParent epic: ${BACKLOG_EPIC} Backlog / Ideas / Problems`;
-    const u = "https://goldmans.atlassian.net/secure/CreateIssueDetails!init.jspa?" + new URLSearchParams({
-      pid: "10034", issuetype: "10038", summary: `[${d.kind}] ${d.summary.trim()}`, description: desc });
-    window.open(u, "_blank", "noopener");
-    msg.className = "msg ok";
-    msg.innerHTML = `Jira opened in a new tab with the idea filled in. Set <b>Parent</b> to <b>${BACKLOG_EPIC}</b> and press <b>Create</b>.`;
-    return;
-  }
   send.disabled = true; msg.className = "msg";
   try {
-    const r = await fetch(WORKER_URL.replace(/\/$/, "") + "/idea", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || "Error " + r.status);
+    const j = await api("/idea", d);
     msg.className = "msg ok"; msg.innerHTML = `Created <a href="${JIRA}${esc(j.key)}" target="_blank" rel="noopener">${esc(j.key)}</a>. Thank you!`; form.reset();
     load(true).catch(() => {});
   } catch (err) { msg.className = "msg err"; msg.textContent = "Could not send: " + err.message; }
@@ -448,9 +803,9 @@ form.addEventListener("submit", async e => {
 
 // ===== Boot ====================================================================
 (async () => {
-  try { await load(!!WORKER_URL); }
+  try { await load(true); }
   catch (e) {
-    try { if (!WORKER_URL) throw e; await load(false); toast("Jira is unavailable, showing the snapshot"); }
+    try { await load(false); toast("Jira is unavailable, showing the saved snapshot (editing will not work)", 6000); }
     catch (e2) { $("app").innerHTML = `<p class="muted">Could not load data: ${esc(e2.message)}</p>`; }
   }
 })();

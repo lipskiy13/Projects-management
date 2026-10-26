@@ -2,20 +2,21 @@
 
 Site: https://lipskiy13.github.io/Projects-management/
 
-Pages:
-- **Plan**: Jira GOLDMANS epics grouped by the "Блок" field (block / subgroup filters), with tasks and subtasks; list view and a Gantt view like the Jira timeline. Assignees are shown as initials avatars.
-- **Backlog**: tasks under GOLDMANS-1075 Backlog / Ideas / Problems.
-- **Efficiency report**: on-time rate in total, per assignee and per block. Hidden for now (`SHOW_REPORT = false` in `index.html`).
+Pages (spec: `docs/SPEC.md`):
+- **Plan**: projects (Jira epics with a "Блок") grouped by block and subgroup. Format dropdown List / Gantt. Filters: block, subgroup, people (multi-select), status (multi-select). KPIs follow the filters. Inline editing of status, start and end dates, and assignee; a side panel to edit title, description and block; buttons to create projects and tasks.
+- **Backlog**: items of GOLDMANS-1075, with the total count only.
+- **Periods**: week or month view of everything whose start–end range overlaps the period, plus carried-over unfinished items. Has a Statistics panel (A epics due, B tasks due, D % done, E % not done).
+- **Efficiency**: the same A/B/D/E metrics over 6 months or 12 weeks, shifting by one period at a time.
 
 Other features:
-- The **↻ Refresh** button loads live data from Jira through the Worker. Without the Worker it reloads the `data.json` snapshot.
-- The **+ Idea** button creates a task in the epic GOLDMANS-1075 Backlog / Ideas / Problems.
-- **Slack 💡**: react with :bulb: on any Slack message (in a channel where the `ideas` bot is a member) → the message becomes `[Idea] …` in GOLDMANS-1075. Reporter = the message author (matched by email), labels `from-slack` + `idea-by-<name>`, the bot marks the message ✅ and replies in the thread. One idea per message.
+- The **↻ Refresh** button reloads live data from Jira through the Worker. If Jira is unreachable, the site falls back to the `data.json` snapshot, and editing is then unavailable.
+- The **+ Idea** button creates a task in the epic GOLDMANS-1075.
+- **Slack 💡**: react with :bulb: on any Slack message in a channel where the `ideas` bot is a member, and the message becomes `[Idea] …` in GOLDMANS-1075.
 
 ## Files
 - `index.html` is the site.
 - `data.json` is a snapshot of Jira data (epics, tasks, subtasks). The site shows it when the Worker is not connected.
-- `worker/worker.js` is the Cloudflare Worker. It holds the Jira token, which can't be kept in a public site. It serves `GET /data` (live data), `POST /idea` (idea from the site) and `POST /slack` (Slack 💡 reactions).
+- `worker/worker.js` is the Cloudflare Worker. It holds the Jira token, which can't be kept in a public site. Endpoints: `GET /data` (+ `meta` with users and block options), `GET /issue/:key`, `POST /update`, `POST /status`, `POST /create`, `POST /idea`, `POST /slack`, `GET /health`. Editing has no protection by design (this is a test site).
 
 ## Connecting the Worker (free, about 10 minutes)
 1. Go to dash.cloudflare.com → Workers & Pages → Create → Worker. Name it `goldmans-portfolio`, paste in the contents of `worker/worker.js`, and click Deploy.
@@ -24,9 +25,6 @@ Other features:
    - `JIRA_TOKEN` (secret): an API token from https://id.atlassian.com/manage-profile/security/api-tokens
    - `ALLOWED_ORIGIN` (text): `https://lipskiy13.github.io`
 3. Worker URL (already set in `index.html`): https://projects-management.kostya-508.workers.dev — deployed automatically by Cloudflare from this repo (`wrangler.toml`). Secrets must be in Settings → Variables and Secrets (runtime), not in Builds.
-
-## Efficiency metric
-% on time = tasks closed no later than their due date ÷ all tasks whose due date has already passed. The denominator counts tasks closed on time, tasks closed late, and overdue tasks that are still open. Tasks and subtasks with a due date are included. Tasks without a due date are left out.
 
 ## Slack 💡 → Jira (one-time setup)
 1. api.slack.com/apps → **Create New App** → **From an app manifest** → pick the workspace → paste `slack/manifest.yml` → **Create**.

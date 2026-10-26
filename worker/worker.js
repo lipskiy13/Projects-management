@@ -1,6 +1,10 @@
 // Cloudflare Worker for the Goldmans portfolio site.
 //   GET  /data  – live data from Jira (epics + tasks + subtasks) in the same format as data.json
 //   POST /idea  – creates a task under the epic GOLDMANS-1075 (Backlog / Ideas / Problems)
+//   GET  /issue/:key – one issue with its description as plain text
+//   POST /update      – edit fields {key, s?, desc?, aid?, sd?, dd?, block?}
+//   POST /status      – move to todo / prog / done via a Jira transition {key, to}
+//   POST /create      – create an epic or a task {type, parent?, s, desc?, aid?, sd?, dd?, block?}
 //   POST /slack – Slack Events API: a :bulb: reaction on a Slack message turns it into an idea in GOLDMANS-1075
 //
 // Secrets / variables (Cloudflare dashboard → Worker → Settings → Variables and secrets):
@@ -32,6 +36,10 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     try {
+      if (request.method === "GET" && path.startsWith("/issue/")) return reply(200, await getIssue(auth, decodeURIComponent(path.slice(7))));
+      if (request.method === "POST" && path === "/update") return reply(200, await updateIssue(auth, await request.json()));
+      if (request.method === "POST" && path === "/status") return reply(200, await changeStatus(auth, await request.json()));
+      if (request.method === "POST" && path === "/create") return reply(200, await createIssue(auth, await request.json()));
       if (request.method === "POST" && path === "/slack") return await slackEvents(request, env, ctx, auth);
       if (request.method === "GET" && path === "/health") return reply(200, await health(auth, env));
       if (request.method === "GET" && path === "/data") return reply(200, await loadData(auth, env));
@@ -66,7 +74,7 @@ function base(i) {
   const f = i.fields;
   return {
     k: i.key, s: f.summary, st: CAT[f.status?.statusCategory?.key] || "todo",
-    a: f.assignee?.displayName || null, sd: f[F_START] || null, dd: f.duedate || null,
+    a: f.assignee?.displayName || null, aid: f.assignee?.accountId || null, sd: f[F_START] || null, dd: f.duedate || null,
     rd: f.resolutiondate ? f.resolutiondate.slice(0, 10) : null,
   };
 }
@@ -78,8 +86,10 @@ async function loadData(auth, env) {
   const all = await search(auth, `project = ${PROJECT_KEY} ORDER BY key ASC`,
     ["summary", "status", "assignee", "duedate", "resolutiondate", F_START, F_BLOCK, "parent", "issuetype"]);
   const isEpic = i => i.fields.issuetype?.hierarchyLevel === 1;
+  const meta = await loadMeta(auth).catch(e => ({ error: String(e.message || e) }));
   return {
     generated: new Date().toISOString(),
+    meta,
     epics: all.filter(isEpic).map(e => ({ ...base(e), b: e.fields[F_BLOCK]?.value || null, g: e.fields[F_BLOCK]?.child?.value || null })),
     issues: all.filter(i => !isEpic(i)).map(i => ({ ...base(i), p: i.fields.parent?.key || null, t: i.fields.issuetype?.subtask ? "sub" : "task" })),
   };
@@ -276,4 +286,115 @@ async function handleIdeaReaction(ev, env, auth) {
     if (ev.user) await slack(env, "chat.postEphemeral", { channel, user: ev.user, text: `Could not save the idea to Jira: ${String(e.message || e).slice(0, 300)}` });
     throw e;
   }
+}
+
+// ---------- editing API ---------------------------------------------------------
+const EPIC_TYPE_ID = "10039";          // "Эпик"
+const KEY_RE = new RegExp(`^${PROJECT_KEY}-\\d+$`);
+const CATEGORY = { todo: "new", prog: "indeterminate", done: "done" };
+
+async function jira(auth, path, opt = {}) {
+  const r = await fetch(JIRA_SITE + path, { ...opt, headers: { Authorization: auth, Accept: "application/json", "Content-Type": "application/json" } });
+  const text = await r.text();
+  let j = {};
+  try { j = text ? JSON.parse(text) : {}; } catch { j = { raw: text }; }
+  if (!r.ok) throw new Error(`Jira ${r.status}: ${JSON.stringify(j.errors || j.errorMessages || j.raw || "").slice(0, 300)}`);
+  return j;
+}
+const checkKey = k => { if (!KEY_RE.test(String(k || ""))) throw new Error("Bad issue key"); return k; };
+
+async function loadMeta(auth) {
+  const users = await jira(auth, `/rest/api/3/user/assignable/search?project=${PROJECT_KEY}&maxResults=100`);
+  const cm = await jira(auth, `/rest/api/3/issue/createmeta/${PROJECT_KEY}/issuetypes/${EPIC_TYPE_ID}?maxResults=100`);
+  const fld = (cm.fields || cm.values || []).find(f => f.fieldId === F_BLOCK);
+  return {
+    users: users.filter(u => u.accountType === "atlassian" && u.active).map(u => ({ id: u.accountId, name: u.displayName })),
+    blocks: (fld?.allowedValues || []).map(o => ({ id: o.id, name: o.value, children: (o.children || []).map(c => ({ id: c.id, name: c.value })) })),
+  };
+}
+
+// Atlassian Document Format <-> plain text
+function adfToText(n) {
+  if (!n) return "";
+  if (typeof n === "string") return n;
+  const kids = (n.content || []).map(adfToText);
+  switch (n.type) {
+    case "doc": return (n.content || []).map(adfToText).join("\n\n").trim();
+    case "text": return n.text || "";
+    case "hardBreak": return "\n";
+    case "mention": case "emoji": return n.attrs?.text || "";
+    case "inlineCard": case "blockCard": return n.attrs?.url || "";
+    case "bulletList": return (n.content || []).map(li => "- " + adfToText(li)).join("\n");
+    case "orderedList": return (n.content || []).map((li, i) => `${i + 1}. ` + adfToText(li)).join("\n");
+    case "listItem": return kids.join("\n");
+    case "paragraph": case "heading": return kids.join("");
+    default: return kids.join(n.type === "table" || n.type === "tableRow" ? "\n" : "");
+  }
+}
+function textToAdf(text) {
+  const t = String(text || "").replace(/\r/g, "").trim();
+  if (!t) return null;
+  const content = t.split(/\n{2,}/).map(block => {
+    const lines = block.split("\n");
+    if (lines.every(l => /^\s*[-*•]\s+/.test(l)))
+      return { type: "bulletList", content: lines.map(l => ({ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: l.replace(/^\s*[-*•]\s+/, "") }] }] })) };
+    const inl = [];
+    lines.forEach((l, i) => { if (i) inl.push({ type: "hardBreak" }); if (l) inl.push({ type: "text", text: l }); });
+    return { type: "paragraph", content: inl };
+  });
+  return { type: "doc", version: 1, content };
+}
+
+async function getIssue(auth, key) {
+  checkKey(key);
+  const i = await jira(auth, `/rest/api/3/issue/${key}?fields=summary,description,status,assignee,duedate,resolutiondate,parent,issuetype,${F_START},${F_BLOCK}`);
+  const f = i.fields;
+  return {
+    ...base(i), desc: adfToText(f.description),
+    type: f.issuetype?.hierarchyLevel === 1 ? "epic" : f.issuetype?.subtask ? "sub" : "task",
+    p: f.parent?.key || null, b: f[F_BLOCK]?.value || null, g: f[F_BLOCK]?.child?.value || null,
+  };
+}
+
+function fieldsFrom(d) {
+  const f = {};
+  const has = k => Object.prototype.hasOwnProperty.call(d, k);
+  if (has("s")) { const s = String(d.s || "").trim().slice(0, 255); if (!s) throw new Error("Title is required"); f.summary = s; }
+  if (has("desc")) f.description = textToAdf(String(d.desc || "").slice(0, 20000));
+  if (has("aid")) f.assignee = d.aid ? { accountId: String(d.aid) } : null;
+  const date = v => { if (!v) return null; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) throw new Error("Bad date"); return v; };
+  if (has("sd")) f[F_START] = date(d.sd);
+  if (has("dd")) f.duedate = date(d.dd);
+  if (has("block")) f[F_BLOCK] = d.block && d.block.id ? { id: String(d.block.id), ...(d.block.child ? { child: { id: String(d.block.child) } } : {}) } : null;
+  return f;
+}
+
+async function updateIssue(auth, d) {
+  const key = checkKey(d.key);
+  const fields = fieldsFrom(d);
+  if (!Object.keys(fields).length) throw new Error("Nothing to update");
+  await jira(auth, `/rest/api/3/issue/${key}`, { method: "PUT", body: JSON.stringify({ fields }) });
+  return { key, ok: true };
+}
+
+async function changeStatus(auth, d) {
+  const key = checkKey(d.key), cat = CATEGORY[d.to];
+  if (!cat) throw new Error("Bad status");
+  const { transitions = [] } = await jira(auth, `/rest/api/3/issue/${key}/transitions`);
+  const t = transitions.find(x => x.to?.statusCategory?.key === cat);
+  if (!t) throw new Error("No transition to this status from the current one");
+  await jira(auth, `/rest/api/3/issue/${key}/transitions`, { method: "POST", body: JSON.stringify({ transition: { id: t.id } }) });
+  return { key, status: t.to.name };
+}
+
+async function createIssue(auth, d) {
+  const type = d.type === "epic" ? "epic" : "task";
+  const fields = { project: { key: PROJECT_KEY }, issuetype: { id: type === "epic" ? EPIC_TYPE_ID : ISSUE_TYPE_ID }, ...fieldsFrom({ ...d, s: d.s ?? "" }) };
+  if (type === "task") fields.parent = { key: checkKey(d.parent) };
+  else delete fields.parent;
+  if (type === "task") delete fields[F_BLOCK];
+  if (!fields.description) delete fields.description;
+  for (const k of ["assignee", "duedate", F_START, F_BLOCK]) if (fields[k] === null) delete fields[k];
+  const j = await jira(auth, `/rest/api/3/issue`, { method: "POST", body: JSON.stringify({ fields }) });
+  return { key: j.key };
 }
