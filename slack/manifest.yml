@@ -1,0 +1,27 @@
+# Slack app manifest: api.slack.com/apps → Create New App → From an app manifest → paste this.
+display_information:
+  name: Ideas to Jira
+  description: React with 💡 on any message to save it as an idea in Jira (GOLDMANS-1075).
+  background_color: "#1d1f24"
+features:
+  bot_user:
+    display_name: ideas
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - reactions:read
+      - reactions:write
+      - channels:history
+      - groups:history
+      - users:read
+      - users:read.email
+      - chat:write
+settings:
+  event_subscriptions:
+    request_url: https://projects-management.kostya-508.workers.dev/slack
+    bot_events:
+      - reaction_added
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
